@@ -14,19 +14,19 @@
 <body class="bg-gray-50 text-gray-800 font-sans">
     <div x-data='{
                         activeTab: "dashboard",
-            reportType: 'daily',
-            issueFilterStatus: 'All',
-            issueFilterCategory: 'All',
-            issueFilterPriority: 'All',
-            appliedIssueFilters: { status: 'All', category: 'All', priority: 'All' },
+            reportType: "daily",
+            issueFilterStatus: "All",
+            issueFilterCategory: "All",
+            issueFilterPriority: "All",
+            appliedIssueFilters: { status: "All", category: "All", priority: "All" },
             showNotification: false,
-            notificationMsg: '',
+            notificationMsg: "",
             cloudinaryConfig: {{ cloudinary_config | tojson | safe }},
             isSaving: false,
             isUploading: false,
             
             initData() {
-                fetch('/api/init-data')
+                fetch("/api/init-data")
                     .then(res => res.json())
                     .then(data => {
                         this.areas = data.areas || this.areas;
@@ -41,22 +41,22 @@
                 if (url && payload) {
                     this.isSaving = true;
                     try {
-                        const isNew = !payload.id || url.endsWith('undefined') || url.endsWith('/');
-                        const finalUrl = isNew ? url.split('/').slice(0, 3).join('/') : url;
-                        const method = isNew ? 'POST' : 'PATCH';
+                        const isNew = !payload.id || url.endsWith("undefined") || url.endsWith("/");
+                        const finalUrl = isNew ? url.split("/").slice(0, 3).join("/") : url;
+                        const method = isNew ? "POST" : "PATCH";
 
                         const res = await fetch(finalUrl, {
                             method: method,
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: { "Content-Type": "application/json" },
                             body: JSON.stringify(payload)
                         });
                         const result = await res.json();
-                        if (result.status === 'error') throw new Error(result.message);
+                        if (result.status === "error") throw new Error(result.message);
                         
                         this.initData();
                     } catch (e) {
-                        console.error('Persistence failed:', e);
-                        alert('Save failed: ' + e.message);
+                        console.error("Persistence failed:", e);
+                        alert("Save failed: " + e.message);
                     } finally {
                         this.isSaving = false;
                     }
@@ -76,84 +76,84 @@
                 this.$nextTick(() => lucide.createIcons());
             },
             areas: [
-                {id: 1, name: 'Cooling Tower', desc: 'Cooling tower foundation and structure', status: 'Active'},
-                {id: 2, name: 'Substation', desc: 'Main electrical control building', status: 'Active'},
-                {id: 3, name: 'Turbine Hall', desc: 'Main turbine and generator install', status: 'Active'},
-                {id: 4, name: 'Boiler Area', desc: 'High pressure boiler structure', status: 'Active'}
+                {id: 1, name: "Cooling Tower", desc: "Cooling tower foundation and structure", status: "Active"},
+                {id: 2, name: "Substation", desc: "Main electrical control building", status: "Active"},
+                {id: 3, name: "Turbine Hall", desc: "Main turbine and generator install", status: "Active"},
+                {id: 4, name: "Boiler Area", desc: "High pressure boiler structure", status: "Active"}
             ],
             members: [
-                {name: 'Sarah Chen', role: 'Team Manager', dept: 'Mechanical'},
-                {name: 'Michael Rodriguez', role: 'Team Manager', dept: 'Civil'},
-                {name: 'David Kumar', role: 'Site Engineer', dept: 'Civil'},
-                {name: 'Robert Thompson', role: 'Site Engineer', dept: 'Mechanical'}
+                {name: "Sarah Chen", role: "Team Manager", dept: "Mechanical"},
+                {name: "Michael Rodriguez", role: "Team Manager", dept: "Civil"},
+                {name: "David Kumar", role: "Site Engineer", dept: "Civil"},
+                {name: "Robert Thompson", role: "Site Engineer", dept: "Mechanical"}
             ],
             issues: [
-                {id: 1, title: 'Concrete Slump Test Failed', area: 'Boiler Area', category: 'NCR', weather: 'Sunny', date: '2026. 4. 11.', priority: 'Critical', status: 'Pending', desc: 'During the pouring of foundation base for Boiler Unit 1, the concrete slump test was performed. The measured slump was 135mm, exceeding the project specification of 80mm-110mm.', manager_comment: 'Rejected the batch immediately.', manager_comment_2: 'Check reinforcement before resume.', engineer_action: 'Batch rejected and sent back to supplier.', engineer_action_2: 'Supplier notified of structural non-conformance.', image_url: '/static/img/construction_issue_photo_1_1775918390346.png', image_caption: 'Failed Slump Test at Boiler Foundation'},
-                {id: 2, title: 'Steel Rebar Delivery Delay', area: 'Turbine Hall', category: 'Vendor', weather: 'Rainy', date: '2026. 4. 10.', priority: 'High', status: 'Open', desc: 'Main rebar supplier reported a 3-day delay in shipping structural steel for Turbine foundation due to logistics issues.', manager_comment: 'Check backup suppliers.', manager_comment_2: '', engineer_action: 'Contacted secondary supplier.', engineer_action_2: '', image_url: '/static/img/construction_issue_photo_2_1775918410020.png', image_caption: 'Logistics delay in Turbine Hall structural steel'},
-                {id: 3, title: 'Scaffolding Safety Violation', area: 'Cooling Tower', category: 'Safety', weather: 'Windy', date: '2026. 4. 12.', priority: 'High', status: 'In Progress', desc: 'Observed incomplete handrails on the 3rd level of the west cooling tower scaffolding. This poses a significant fall hazard for workers.', manager_comment: 'Stop work in that area immediately.', manager_comment_2: 'Perform site-wide safety inspection.', engineer_action: 'Safety team deployed to fix handrails and verify entire structure.', engineer_action_2: 'Re-certified all levels for compliance.', image_url: '/static/img/construction_issue_photo_1_1775918390346.png', image_caption: 'Incomplete scaffolding handrails'},
-                {id: 4, title: 'Material Inspection Reject', area: 'Substation', category: 'Quality', weather: 'Cloudy', date: '2026. 4. 13.', priority: 'Medium', status: 'Resolved', desc: 'High voltage switchgear arrived with surface scratches and damaged paint. Rejected pending touch-up and re-inspection.', manager_comment: 'Document damage and contact vendor.', manager_comment_2: 'Ensure paint spec matches.', engineer_action: 'Hold report issued to logistics team.', engineer_action_2: 'Touch-up paint approved by QA.', image_url: '/static/img/construction_issue_photo_2_1775918410020.png', image_caption: 'Damaged switchgear at Substation'}
+                {id: 1, title: "Concrete Slump Test Failed", area: "Boiler Area", category: "NCR", weather: "Sunny", date: "2026. 4. 11.", priority: "Critical", status: "Pending", desc: "During the pouring of foundation base for Boiler Unit 1, the concrete slump test was performed. The measured slump was 135mm, exceeding the project specification of 80mm-110mm.", manager_comment: "Rejected the batch immediately.", manager_comment_2: "Check reinforcement before resume.", engineer_action: "Batch rejected and sent back to supplier.", engineer_action_2: "Supplier notified of structural non-conformance.", image_url: "/static/img/construction_issue_photo_1_1775918390346.png", image_caption: "Failed Slump Test at Boiler Foundation"},
+                {id: 2, title: "Steel Rebar Delivery Delay", area: "Turbine Hall", category: "Vendor", weather: "Rainy", date: "2026. 4. 10.", priority: "High", status: "Open", desc: "Main rebar supplier reported a 3-day delay in shipping structural steel for Turbine foundation due to logistics issues.", manager_comment: "Check backup suppliers.", manager_comment_2: "", engineer_action: "Contacted secondary supplier.", engineer_action_2: "", image_url: "/static/img/construction_issue_photo_2_1775918410020.png", image_caption: "Logistics delay in Turbine Hall structural steel"},
+                {id: 3, title: "Scaffolding Safety Violation", area: "Cooling Tower", category: "Safety", weather: "Windy", date: "2026. 4. 12.", priority: "High", status: "In Progress", desc: "Observed incomplete handrails on the 3rd level of the west cooling tower scaffolding. This poses a significant fall hazard for workers.", manager_comment: "Stop work in that area immediately.", manager_comment_2: "Perform site-wide safety inspection.", engineer_action: "Safety team deployed to fix handrails and verify entire structure.", engineer_action_2: "Re-certified all levels for compliance.", image_url: "/static/img/construction_issue_photo_1_1775918390346.png", image_caption: "Incomplete scaffolding handrails"},
+                {id: 4, title: "Material Inspection Reject", area: "Substation", category: "Quality", weather: "Cloudy", date: "2026. 4. 13.", priority: "Medium", status: "Resolved", desc: "High voltage switchgear arrived with surface scratches and damaged paint. Rejected pending touch-up and re-inspection.", manager_comment: "Document damage and contact vendor.", manager_comment_2: "Ensure paint spec matches.", engineer_action: "Hold report issued to logistics team.", engineer_action_2: "Touch-up paint approved by QA.", image_url: "/static/img/construction_issue_photo_2_1775918410020.png", image_caption: "Damaged switchgear at Substation"}
             ],
             dailyReports: [
-                {id: 1, title: 'Turbine Hall Foundation Pouring', area: 'Turbine Hall', date: '2026. 4. 11.', weather: 'Sunny', desc: 'Completed the main foundation pouring for Unit 1. 450m3 of C30 concrete successfully poured and vibrated.', manager_comment: 'Pouring completed on schedule. Curing started.', engineer_action: 'Thermo-couples installed for curing monitoring.', image_url: '/static/img/construction_issue_photo_1_1775918390346.png'},
-                {id: 2, title: 'Cooling Tower Rebar Inspection', area: 'Cooling Tower', date: '2026. 4. 10.', weather: 'Partly Cloudy', desc: 'Conducted pre-pour inspection of structural rebar for Cooling Tower West base. All spacing verified.', manager_comment: 'QA/QC approved for pouring tomorrow.', engineer_action: 'Pre-pour check-list completed and signed off.', image_url: '/static/img/construction_issue_photo_2_1775918410020.png'}
+                {id: 1, title: "Turbine Hall Foundation Pouring", area: "Turbine Hall", date: "2026. 4. 11.", weather: "Sunny", desc: "Completed the main foundation pouring for Unit 1. 450m3 of C30 concrete successfully poured and vibrated.", manager_comment: "Pouring completed on schedule. Curing started.", engineer_action: "Thermo-couples installed for curing monitoring.", image_url: "/static/img/construction_issue_photo_1_1775918390346.png"},
+                {id: 2, title: "Cooling Tower Rebar Inspection", area: "Cooling Tower", date: "2026. 4. 10.", weather: "Partly Cloudy", desc: "Conducted pre-pour inspection of structural rebar for Cooling Tower West base. All spacing verified.", manager_comment: "QA/QC approved for pouring tomorrow.", engineer_action: "Pre-pour check-list completed and signed off.", image_url: "/static/img/construction_issue_photo_2_1775918410020.png"}
             ],
-            dailyFilter: 'All',
+            dailyFilter: "All",
             showAreaModal: false, 
             showMemberModal: false,
-            editingArea: { id: null, name: '', desc: '' },
-            editingMember: { id: null, name: '', role: '', dept: '' },
+            editingArea: { id: null, name: "", desc: "" },
+            editingMember: { id: null, name: "", role: "", dept: "" },
             selectedIssue: null,
             selectedDaily: null,
-            newDaily: { title: '', area: '', weather: '', desc: '', date: '', image_url: '' },
-            newIssue: { title: '', area: '', weather: '', category: '', priority: '', desc: '', date: '', image_url_1: '', image_url_2: '', image_url_3: '' },
+            newDaily: { title: "", area: "", weather: "", desc: "", date: "", image_url: "" },
+            newIssue: { title: "", area: "", weather: "", category: "", priority: "", desc: "", date: "", image_url_1: "", image_url_2: "", image_url_3: "" },
             async submitReport(type) {
                 if (this.isSaving) return;
-                const url = type === 'daily' ? '/api/daily' : '/api/issues';
-                const payload = type === 'daily' ? this.newDaily : this.newIssue;
+                const url = type === "daily" ? "/api/daily" : "/api/issues";
+                const payload = type === "daily" ? this.newDaily : this.newIssue;
                 
                 if (!payload.title || !payload.area) {
-                    alert('Please fill in required fields (Title and Area).');
+                    alert("Please fill in required fields (Title and Area).");
                     return;
                 }
 
                 this.isSaving = true;
                 try {
                     const res = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(payload)
                     });
                     const result = await res.json();
-                    if (result.status === 'error') throw new Error(result.message);
+                    if (result.status === "error") throw new Error(result.message);
 
-                    this.saveEntry(type === 'daily' ? 'Daily Report submitted.' : 'Issue Report submitted.');
+                    this.saveEntry(type === "daily" ? "Daily Report submitted." : "Issue Report submitted.");
                     
                     // Reset forms
-                    if (type === 'daily') {
-                        this.newDaily = { title: '', area: '', weather: '', desc: '', date: new Date().toISOString().split('T')[0], image_url: '' };
+                    if (type === "daily") {
+                        this.newDaily = { title: "", area: "", weather: "", desc: "", date: new Date().toISOString().split("T")[0], image_url: "" };
                     } else {
-                        this.newIssue = { title: '', area: '', weather: '', category: '', priority: '', desc: '', date: new Date().toISOString().split('T')[0], image_url_1: '', image_url_2: '', image_url_3: '' };
+                        this.newIssue = { title: "", area: "", weather: "", category: "", priority: "", desc: "", date: new Date().toISOString().split("T")[0], image_url_1: "", image_url_2: "", image_url_3: "" };
                     }
 
                     this.initData(); // Refresh list from server
-                    this.activeTab = type === 'daily' ? 'daily-reports' : 'issues';
+                    this.activeTab = type === "daily" ? "daily-reports" : "issues";
                 } catch (e) {
-                    console.error('Submission failed:', e);
-                    alert('Submission failed: ' + e.message);
+                    console.error("Submission failed:", e);
+                    alert("Submission failed: " + e.message);
                 } finally {
                     this.isSaving = false;
                 }
             },
             get filteredIssues() {
                 return this.issues.filter(i => {
-                    const matchStatus = this.appliedIssueFilters.status === 'All' || i.status === this.appliedIssueFilters.status;
-                    const matchCategory = this.appliedIssueFilters.category === 'All' || i.category === this.appliedIssueFilters.category;
-                    const matchPriority = this.appliedIssueFilters.priority === 'All' || i.priority === this.appliedIssueFilters.priority;
+                    const matchStatus = this.appliedIssueFilters.status === "All" || i.status === this.appliedIssueFilters.status;
+                    const matchCategory = this.appliedIssueFilters.category === "All" || i.category === this.appliedIssueFilters.category;
+                    const matchPriority = this.appliedIssueFilters.priority === "All" || i.priority === this.appliedIssueFilters.priority;
                     return matchStatus && matchCategory && matchPriority;
                 });
             },
             get filteredDaily() {
-                if (this.dailyFilter === 'All') return this.dailyReports;
+                if (this.dailyFilter === "All") return this.dailyReports;
                 return this.dailyReports.filter(d => d.area === this.dailyFilter);
             },
             isUploading: false,
@@ -165,7 +165,7 @@
                         const img = new Image();
                         img.src = e.target.result;
                         img.onload = () => {
-                            const canvas = document.createElement('canvas');
+                            const canvas = document.createElement("canvas");
                             const MAX_WIDTH = 1024;
                             let width = img.width;
                             let height = img.height;
@@ -175,11 +175,11 @@
                             }
                             canvas.width = width;
                             canvas.height = height;
-                            const ctx = canvas.getContext('2d');
+                            const ctx = canvas.getContext("2d");
                             ctx.drawImage(img, 0, 0, width, height);
                             canvas.toBlob((blob) => {
                                 resolve(blob);
-                            }, 'image/jpeg', 0.7);
+                            }, "image/jpeg", 0.7);
                         };
                     };
                 });
@@ -193,20 +193,20 @@
                     const reader = new FileReader();
                     reader.readAsDataURL(compressedBlob);
                     reader.onloadend = () => {
-                        if (target === 'daily') {
+                        if (target === "daily") {
                             this.newDaily.image_url = reader.result;
-                        } else if (target === 'issue') {
+                        } else if (target === "issue") {
                             if (slot) {
-                                this.newIssue['image_url_' + slot] = reader.result;
+                                this.newIssue["image_url_" + slot] = reader.result;
                             } else {
                                 this.newIssue.image_url_1 = reader.result;
                             }
                         }
                         this.isUploading = false;
-                        this.saveEntry('Photo optimized and ready.');
+                        this.saveEntry("Photo optimized and ready.");
                     };
                 } catch (e) {
-                    console.error('Upload failed:', e);
+                    console.error("Upload failed:", e);
                     this.isUploading = false;
                 }
             },
