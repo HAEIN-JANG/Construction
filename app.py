@@ -30,20 +30,37 @@ def index():
 # GET: Fetch all initial data
 @app.route('/api/init-data', methods=['GET'])
 def get_init_data():
+    if not supabase:
+        return jsonify({"areas": [], "members": [], "issues": [], "dailyReports": []})
+    
+    response = {"areas": [], "members": [], "issues": [], "dailyReports": []}
+    
     try:
-        areas = supabase.table("working_areas").select("*").execute()
-        members = supabase.table("team_members").select("*").execute()
-        issues = supabase.table("issue_reports").select("*").order("date", desc=True).execute()
-        daily = supabase.table("daily_reports").select("*").order("date", desc=True).execute()
-        
-        return jsonify({
-            "areas": areas.data,
-            "members": members.data,
-            "issues": issues.data,
-            "dailyReports": daily.data
-        })
+        response["areas"] = supabase.table("working_areas").select("*").execute().data
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        print(f"Error areas: {e}")
+        
+    try:
+        response["members"] = supabase.table("team_members").select("*").execute().data
+    except Exception as e:
+        print(f"Error members: {e}")
+        
+    try:
+        response["issues"] = supabase.table("issue_reports").select("*").order("id", desc=True).execute().data
+    except Exception as e:
+        # Fallback to order without 'date' if not exists
+        try:
+            response["issues"] = supabase.table("issue_reports").select("*").execute().data
+        except: pass
+        
+    try:
+        response["dailyReports"] = supabase.table("daily_reports").select("*").order("id", desc=True).execute().data
+    except Exception as e:
+        try:
+            response["dailyReports"] = supabase.table("daily_reports").select("*").execute().data
+        except: pass
+        
+    return jsonify(response)
 
 # POST: Save/Update Issue Report Comments
 @app.route('/api/issues/<int:id>', methods=['PATCH'])
