@@ -13,7 +13,7 @@
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans">
     <div x-data="{
-            activeTab: 'dashboard',
+                        activeTab: 'dashboard',
             reportType: 'daily',
             issueFilterStatus: 'All',
             issueFilterCategory: 'All',
@@ -24,7 +24,6 @@
             cloudinaryConfig: {{ cloudinary_config | tojson | safe }},
             isSaving: false,
             isUploading: false,
-
             
             initData() {
                 fetch('/api/init-data')
@@ -38,15 +37,28 @@
                     });
             },
             async saveEntry(msg, url = null, payload = null) {
+                if (this.isSaving) return;
                 if (url && payload) {
+                    this.isSaving = true;
                     try {
-                        await fetch(url, {
-                            method: 'PATCH',
+                        const isNew = !payload.id || url.endsWith('undefined') || url.endsWith('/');
+                        const finalUrl = isNew ? url.split('/').slice(0, 3).join('/') : url;
+                        const method = isNew ? 'POST' : 'PATCH';
+
+                        const res = await fetch(finalUrl, {
+                            method: method,
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(payload)
                         });
+                        const result = await res.json();
+                        if (result.status === 'error') throw new Error(result.message);
+                        
+                        this.initData();
                     } catch (e) {
                         console.error('Persistence failed:', e);
+                        alert('Save failed: ' + e.message);
+                    } finally {
+                        this.isSaving = false;
                     }
                 }
                 this.notificationMsg = msg;
@@ -88,8 +100,8 @@
             dailyFilter: 'All',
             showAreaModal: false, 
             showMemberModal: false,
-            editingArea: { name: '', desc: '' },
-            editingMember: { name: '', role: '', dept: '' },
+            editingArea: { id: null, name: '', desc: '' },
+            editingMember: { id: null, name: '', role: '', dept: '' },
             selectedIssue: null,
             selectedDaily: null,
             newDaily: { title: '', area: '', weather: '', desc: '', date: '', image_url: '' },
@@ -748,7 +760,7 @@
 
             <!-- 4. WORKING AREAS -->
             <section x-show="activeTab === 'areas'" class="p-4 md:p-8 space-y-4">
-                <header class="flex justify-between items-center"><div><h2 class="text-xl font-bold">Working Areas</h2><p class="text-gray-400 text-xs">Construction zones</p></div><button @click="showAreaModal = true" class="bg-orange-500 text-white px-3 py-1.5 rounded-xl shadow-md text-xs font-bold transition-all active:scale-95">Add</button></header>
+                <header class="flex justify-between items-center"><div><h2 class="text-xl font-bold">Working Areas</h2><p class="text-gray-400 text-xs">Construction zones</p></div><button @click="editingArea = { id: null, name: '', desc: '' }; showAreaModal = true" class="bg-orange-500 text-white px-3 py-1.5 rounded-xl shadow-md text-xs font-bold transition-all active:scale-95">Add</button></header>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 font-medium">
                     <template x-for="area in areas">
                         <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm hover:border-orange-500 transition-all card-hover relative group">
@@ -769,7 +781,7 @@
 
             <!-- 5. TEAM MEMBERS -->
             <section x-show="activeTab === 'team'" class="p-4 md:p-8 space-y-4">
-                <header class="flex justify-between items-center"><div><h2 class="text-xl font-bold">Team Members</h2><p class="text-gray-400 text-xs">Personnel</p></div><button @click="showMemberModal = true" class="bg-orange-500 text-white px-3 py-1.5 rounded-xl shadow-md text-xs font-bold transition-all active:scale-95">Add</button></header>
+                <header class="flex justify-between items-center"><div><h2 class="text-xl font-bold">Team Members</h2><p class="text-gray-400 text-xs">Personnel</p></div><button @click="editingMember = { id: null, name: '', role: '', dept: '' }; showMemberModal = true" class="bg-orange-500 text-white px-3 py-1.5 rounded-xl shadow-md text-xs font-bold transition-all active:scale-95">Add</button></header>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <template x-for="member in members">
                         <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between group hover:shadow-md transition-all">
@@ -794,7 +806,7 @@
                         <div><label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Area Name</label><input type="text" x-model="editingArea.name" placeholder="e.g. Tank Farm" class="w-full bg-gray-50 border border-gray-100 rounded-xl p-3.5 text-sm outline-none"></div>
                         <div><label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Description</label><textarea x-model="editingArea.desc" rows="3" class="w-full bg-gray-50 border border-gray-100 rounded-xl p-3.5 text-sm outline-none"></textarea></div>
                     </div>
-                    <button @click="saveEntry('Working Area updated.', '/api/areas/' + editingArea.id, editingArea); showAreaModal = false; editingArea = null;" class="w-full bg-orange-500 text-white font-black h-12 rounded-2xl shadow-xl shadow-orange-500/30 uppercase tracking-widest text-xs active:scale-95 transition-all">Save Changes</button>
+                    <button @click="saveEntry(editingArea.id ? 'Working Area updated.' : 'New Area added.', '/api/areas/' + (editingArea.id || ''), editingArea); showAreaModal = false; editingArea = null;" class="w-full bg-orange-500 text-white font-black h-12 rounded-2xl shadow-xl shadow-orange-500/30 uppercase tracking-widest text-xs active:scale-95 transition-all">Save Changes</button>
                 </div>
             </div>
 
@@ -810,7 +822,7 @@
                             <div><label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Department</label><input type="text" x-model="editingMember.dept" class="w-full bg-gray-50 border border-gray-100 rounded-xl p-3.5 text-sm outline-none"></div>
                         </div>
                     </div>
-                    <button @click="saveEntry('Team Member updated.', '/api/members/' + editingMember.id, editingMember); showMemberModal = false; editingMember = null;" class="w-full bg-blue-600 text-white font-black h-12 rounded-2xl shadow-xl shadow-blue-600/30 uppercase tracking-widest text-xs active:scale-95 transition-all">Save Changes</button>
+                    <button @click="saveEntry(editingMember.id ? 'Team Member updated.' : 'New Member added.', '/api/members/' + (editingMember.id || ''), editingMember); showMemberModal = false; editingMember = null;" class="w-full bg-blue-600 text-white font-black h-12 rounded-2xl shadow-xl shadow-blue-600/30 uppercase tracking-widest text-xs active:scale-95 transition-all">Save Changes</button>
                 </div>
             </div>
         </main>

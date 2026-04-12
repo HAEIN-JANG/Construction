@@ -92,6 +92,16 @@ def update_area(id):
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 400
 
+# POST: Create New Area
+@app.route('/api/areas', methods=['POST'])
+def create_area():
+    data = request.json
+    try:
+        result = supabase.table("working_areas").insert(data).execute()
+        return jsonify({"status": "success", "data": result.data}), 201
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
+
 # POST: Update Member
 @app.route('/api/members/<int:id>', methods=['PATCH'])
 def update_member(id):
@@ -99,6 +109,16 @@ def update_member(id):
     try:
         result = supabase.table("team_members").update(data).eq("id", id).execute()
         return jsonify({"status": "success", "data": result.data})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
+
+# POST: Create New Member
+@app.route('/api/members', methods=['POST'])
+def create_member():
+    data = request.json
+    try:
+        result = supabase.table("team_members").insert(data).execute()
+        return jsonify({"status": "success", "data": result.data}), 201
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 400
 
