@@ -580,7 +580,7 @@
                         <div @click="item.priority ? (selectedIssue = item, activeTab = 'issues') : (selectedDaily = item, activeTab = 'daily-reports'); $nextTick(() => lucide.createIcons());" class="bg-white p-5 rounded-2xl border-l-4 border-yellow-500 shadow-sm space-y-2 hover:bg-yellow-50 transition-all cursor-pointer">
                             <div class="flex justify-between items-center"><span class="text-[9px] font-black text-yellow-600 uppercase" x-text="item.area"></span><span class="text-[9px] text-gray-400" x-text="item.date"></span></div>
                             <h4 class="font-bold text-sm" x-text="item.title"></h4>
-                            <p class="text-xs text-gray-600 italic" x-text="'\"' + item.manager_comment + '\"'"></p>
+                            <p class="text-xs text-gray-600 italic" x-text="'&quot;' + item.manager_comment + '&quot;'"></p>
                         </div>
                     </template>
                 </div>
