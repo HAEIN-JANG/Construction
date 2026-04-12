@@ -1,0 +1,15 @@
+{
+  "name": "Turkistan CCGT Daily Report",
+  "short_name": "현장일보",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#f97316",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/4345/4345573.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

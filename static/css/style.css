@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --color-primary: #f97316; /* Orange 500 */
+    --color-sidebar-bg: #ffffff;
+    --color-main-bg: #f8fafc;
+    --color-text-main: #1e293b;
+    --color-text-muted: #64748b;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--color-text-main);
+    background-color: var(--color-main-bg);
+}
+
+/* Sidebar Styling */
+aside nav button {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+aside nav button:hover {
+    transform: translateX(4px);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+}
+
+/* Transitions */
+[x-show] {
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+/* Input Styles */
+input, select, textarea {
+    transition: all 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+    background-color: #fff !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Card Hover Animation */
+.card-hover {
+    transition: all 0.3s ease;
+}
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+}
+
+/* Animation for active tab */
+section {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Custom Shadows */
+.shadow-soft {
+    box-shadow: 0 2px 15px -3px rgba(0,0,0,0.07);
+}
