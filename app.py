@@ -30,37 +30,32 @@ def index():
 # GET: Fetch all initial data
 @app.route('/api/init-data', methods=['GET'])
 def get_init_data():
-    if not supabase:
-        return jsonify({"areas": [], "members": [], "issues": [], "dailyReports": []})
+    data = {"areas": [], "members": [], "issues": [], "dailyReports": []}
+    if not supabase: return jsonify(data)
     
-    response = {"areas": [], "members": [], "issues": [], "dailyReports": []}
+    def fetch_safe(table_name):
+        try:
+            # Try current schema (construction)
+            res = supabase.table(table_name).select("*").execute()
+            if res.data: return res.data
+        except Exception as e:
+            print(f"Failed {table_name} in construction schema: {e}")
+            
+        try:
+            # Fallback to public schema
+            pub_client = create_client(url, key)
+            res = pub_client.table(table_name).select("*").execute()
+            return res.data
+        except Exception as e:
+            print(f"Failed {table_name} in public schema: {e}")
+            return []
+
+    data["areas"] = fetch_safe("working_areas")
+    data["members"] = fetch_safe("team_members")
+    data["issues"] = fetch_safe("issue_reports")
+    data["dailyReports"] = fetch_safe("daily_reports")
     
-    try:
-        response["areas"] = supabase.table("working_areas").select("*").execute().data
-    except Exception as e:
-        print(f"Error areas: {e}")
-        
-    try:
-        response["members"] = supabase.table("team_members").select("*").execute().data
-    except Exception as e:
-        print(f"Error members: {e}")
-        
-    try:
-        response["issues"] = supabase.table("issue_reports").select("*").order("id", desc=True).execute().data
-    except Exception as e:
-        # Fallback to order without 'date' if not exists
-        try:
-            response["issues"] = supabase.table("issue_reports").select("*").execute().data
-        except: pass
-        
-    try:
-        response["dailyReports"] = supabase.table("daily_reports").select("*").order("id", desc=True).execute().data
-    except Exception as e:
-        try:
-            response["dailyReports"] = supabase.table("daily_reports").select("*").execute().data
-        except: pass
-        
-    return jsonify(response)
+    return jsonify(data)
 
 # POST: Save/Update Issue Report Comments
 @app.route('/api/issues/<int:id>', methods=['PATCH'])
@@ -128,26 +123,26 @@ def export_excel():
     try:
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            # Try to get Daily Reports
-            try:
-                res_daily = supabase.table("daily_reports").select("*").execute()
-                if res_daily.data:
-                    df_daily = pd.DataFrame(res_daily.data)
-                    df_daily.to_excel(writer, index=False, sheet_name='DailyReports')
-            except:
-                pd.DataFrame([{"Message": "No Daily Reports found"}]).to_excel(writer, index=False, sheet_name='DailyReports')
+            def fetch_df(table_name):
+                try:
+                    # Current schema
+                    res = supabase.table(table_name).select("*").execute()
+                    if res.data: return pd.DataFrame(res.data)
+                except: pass
+                try:
+                    # Fallback public
+                    pc = create_client(url, key)
+                    res = pc.table(table_name).select("*").execute()
+                    if res.data: return pd.DataFrame(res.data)
+                except: pass
+                return pd.DataFrame([{"Message": f"No data in {table_name}"}])
 
-            # Try to get Issue Reports
-            try:
-                res_issue = supabase.table("issue_reports").select("*").execute()
-                if res_issue.data:
-                    df_issue = pd.DataFrame(res_issue.data)
-                    df_issue.to_excel(writer, index=False, sheet_name='IssueReports')
-            except:
-                pd.DataFrame([{"Message": "No Issue Reports found"}]).to_excel(writer, index=False, sheet_name='IssueReports')
+            fetch_df("daily_reports").to_excel(writer, index=False, sheet_name='DailyReports')
+            fetch_df("issue_reports").to_excel(writer, index=False, sheet_name='IssueReports')
         
         output.seek(0)
-        filename = f"Construction_Report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+        ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"Construction_Report_{ts}.xlsx"
         return send_file(output, as_attachment=True, download_name=filename, 
                          mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     except Exception as e:
