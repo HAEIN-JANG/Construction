@@ -12,8 +12,8 @@
     <style>[x-cloak] { display: none !important; }</style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans">
-    <div x-data="{
-                        activeTab: 'dashboard',
+    <div x-data='{
+                        activeTab: "dashboard",
             reportType: 'daily',
             issueFilterStatus: 'All',
             issueFilterCategory: 'All',
@@ -216,7 +216,7 @@
             get actionCount() {
                 return this.issues.filter(i => !!i.engineer_action).length;
             }
-        }"
+        }'
         x-init="initData()"
         class="flex h-screen overflow-hidden flex-col md:flex-row text-[13px] relative"
     >
@@ -476,7 +476,7 @@
                                             'bg-red-100 text-red-700': issue.priority === 'Critical',
                                             'bg-orange-100 text-orange-700': issue.priority === 'High',
                                             'bg-blue-100 text-blue-700': issue.priority === 'Medium'
-                                        }" class="text-[9px] px-2 py-0.5 rounded-lg font-black uppercase" x-text="issue.priority"></span>
+                                        }' class="text-[9px] px-2 py-0.5 rounded-lg font-black uppercase" x-text="issue.priority"></span>
                                         <i data-lucide="chevron-right" class="w-5 h-5 text-gray-200 group-hover:text-orange-500 transition-all"></i>
                                     </div>
                                 </div>
@@ -492,7 +492,7 @@
                                         'bg-red-500 text-white': issue.status === 'Open',
                                         'bg-yellow-500 text-white': issue.status === 'In Progress',
                                         'bg-green-500 text-white': issue.status === 'Resolved'
-                                    }" class="text-[9px] px-2.5 py-1 rounded-full font-black uppercase shadow-sm" x-text="issue.status"></span>
+                                    }' class="text-[9px] px-2.5 py-1 rounded-full font-black uppercase shadow-sm" x-text="issue.status"></span>
                                 </div>
                             </div>
                         </template>
