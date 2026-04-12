@@ -126,15 +126,27 @@ def create_daily():
 @app.route('/api/export-excel')
 def export_excel():
     try:
-        # Defaulting to Daily Reports for export
-        res = supabase.table("daily_reports").select("*").order("created_at", desc=True).execute()
-        df = pd.DataFrame(res.data)
-        
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            df.to_excel(writer, index=False, sheet_name='DailyReports')
-        output.seek(0)
+            # Try to get Daily Reports
+            try:
+                res_daily = supabase.table("daily_reports").select("*").execute()
+                if res_daily.data:
+                    df_daily = pd.DataFrame(res_daily.data)
+                    df_daily.to_excel(writer, index=False, sheet_name='DailyReports')
+            except:
+                pd.DataFrame([{"Message": "No Daily Reports found"}]).to_excel(writer, index=False, sheet_name='DailyReports')
+
+            # Try to get Issue Reports
+            try:
+                res_issue = supabase.table("issue_reports").select("*").execute()
+                if res_issue.data:
+                    df_issue = pd.DataFrame(res_issue.data)
+                    df_issue.to_excel(writer, index=False, sheet_name='IssueReports')
+            except:
+                pd.DataFrame([{"Message": "No Issue Reports found"}]).to_excel(writer, index=False, sheet_name='IssueReports')
         
+        output.seek(0)
         filename = f"Construction_Report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
         return send_file(output, as_attachment=True, download_name=filename, 
                          mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
