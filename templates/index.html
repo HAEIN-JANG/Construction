@@ -21,6 +21,10 @@
             appliedIssueFilters: { status: 'All', category: 'All', priority: 'All' },
             showNotification: false,
             notificationMsg: '',
+            cloudinaryConfig: {{ cloudinary_config | tojson | safe }},
+            isSaving: false,
+            isUploading: false,
+
             
             initData() {
                 fetch('/api/init-data')
@@ -91,19 +95,41 @@
             newDaily: { title: '', area: '', weather: '', desc: '', date: '', image_url: '' },
             newIssue: { title: '', area: '', weather: '', category: '', priority: '', desc: '', date: '', image_url_1: '', image_url_2: '', image_url_3: '' },
             async submitReport(type) {
+                if (this.isSaving) return;
                 const url = type === 'daily' ? '/api/daily' : '/api/issues';
                 const payload = type === 'daily' ? this.newDaily : this.newIssue;
+                
+                if (!payload.title || !payload.area) {
+                    alert('Please fill in required fields (Title and Area).');
+                    return;
+                }
+
+                this.isSaving = true;
                 try {
-                    await fetch(url, {
+                    const res = await fetch(url, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
+                    const result = await res.json();
+                    if (result.status === 'error') throw new Error(result.message);
+
                     this.saveEntry(type === 'daily' ? 'Daily Report submitted.' : 'Issue Report submitted.');
-                    this.initData(); // Refresh list
+                    
+                    // Reset forms
+                    if (type === 'daily') {
+                        this.newDaily = { title: '', area: '', weather: '', desc: '', date: new Date().toISOString().split('T')[0], image_url: '' };
+                    } else {
+                        this.newIssue = { title: '', area: '', weather: '', category: '', priority: '', desc: '', date: new Date().toISOString().split('T')[0], image_url_1: '', image_url_2: '', image_url_3: '' };
+                    }
+
+                    this.initData(); // Refresh list from server
                     this.activeTab = type === 'daily' ? 'daily-reports' : 'issues';
                 } catch (e) {
                     console.error('Submission failed:', e);
+                    alert('Submission failed: ' + e.message);
+                } finally {
+                    this.isSaving = false;
                 }
             },
             get filteredIssues() {
@@ -618,35 +644,39 @@
                             <h3 class="font-bold text-blue-600 flex items-center space-x-2 text-sm"><i data-lucide="clipboard-list" class="w-4 h-4"></i><span>Daily Construction Details</span></h3>
                             <div class="flex items-center space-x-2 bg-gray-50 px-2.5 py-1 rounded-xl border border-gray-100">
                                 <i data-lucide="calendar" class="w-3 h-3 text-gray-400"></i>
-                                <input type="date" value="2026-04-12" class="bg-transparent text-[10px] font-bold outline-none border-none">
+                                <input type="date" x-model="newDaily.date" class="bg-transparent text-[10px] font-bold outline-none border-none">
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Weather *</label>
-                                <select class="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 text-[11px] font-bold outline-none appearance-none cursor-pointer hover:bg-white transition-all text-blue-600">
+                                <select x-model="newDaily.weather" class="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 text-[11px] font-bold outline-none appearance-none cursor-pointer hover:bg-white transition-all text-blue-600">
                                     <option value="" disabled selected>Select...</option>
                                     <option>Sunny</option><option>Cloudy</option><option>Partly Cloudy</option><option>Rainy</option><option>Windy</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Working Area *</label>
-                                <select class="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 text-[11px] font-bold outline-none appearance-none cursor-pointer hover:bg-white transition-all">
+                                <select x-model="newDaily.weather" class="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 text-[11px] font-bold outline-none appearance-none cursor-pointer hover:bg-white transition-all">
                                     <option value="" disabled selected>Select Area...</option>
                                     <template x-for="area in areas"><option x-text="area.name"></option></template>
                                 </select>
                             </div>
-                            <div class="col-span-2"><label class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1 block">Report Title *</label><input type="text" placeholder="e.g. Turbine Foundation Pouring" class="w-full bg-gray-50 border border-gray-100 rounded-xl p-3.5 text-sm focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"></div>
-                            <div class="col-span-2"><label class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1 block">Work Description *</label><textarea rows="5" placeholder="Describe the work performed today in detail..." class="w-full bg-gray-50 border border-gray-100 rounded-xl p-3.5 text-sm focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"></textarea></div>
+                            <div class="col-span-2"><label class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1 block">Report Title *</label><input type="text" x-model="newDaily.title" placeholder="e.g. Turbine Foundation Pouring" class="w-full bg-gray-50 border border-gray-100 rounded-xl p-3.5 text-sm focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"></div>
+                            <div class="col-span-2"><label class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1 block">Work Description *</label><textarea rows="5" x-model="newDaily.desc" placeholder="Describe the work performed today in detail..." class="w-full bg-gray-50 border border-gray-100 rounded-xl p-3.5 text-sm focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"></textarea></div>
                         </div>
                         <div class="space-y-1.5">
                             <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest block">Site Photos</label>
-                            <div class="w-full bg-gray-50 border-2 border-dashed border-gray-200 rounded-3xl p-5 flex flex-col items-center justify-center space-y-2 cursor-pointer hover:border-blue-500 hover:bg-blue-50/20 transition-all group">
+                            <div @click="$refs.dailyPhoto.click()" class="w-full bg-gray-50 border-2 border-dashed border-gray-200 rounded-3xl p-5 flex flex-col items-center justify-center space-y-2 cursor-pointer hover:border-blue-500 hover:bg-blue-50/20 transition-all group relative overflow-hidden">
+                                <template x-if="newDaily.image_url"><img :src="newDaily.image_url" class="absolute inset-0 w-full h-full object-cover opacity-20"></template>
                                 <div class="bg-white p-3 rounded-2xl shadow-sm text-gray-400 group-hover:text-blue-500 transition-colors"><i data-lucide="camera" class="w-6 h-6"></i></div>
+                                <div class="text-center"><p class="text-xs font-bold text-gray-700" x-text="newDaily.image_url ? 'Photo Selected' : 'Upload Site Photos'"></p><p class="text-[9px] text-gray-400 font-medium">PNG or JPG (Max. 10MB)</p></div>
+                                <input type="file" x-ref="dailyPhoto" class="hidden" accept="image/*" @change="handleFileUpload($event, 'daily')">
+                            </div>
                                 <div class="text-center"><p class="text-xs font-bold text-gray-700">Upload Site Photos</p><p class="text-[9px] text-gray-400 font-medium">PNG or JPG (Max. 10MB)</p></div>
                             </div>
                         </div>
-                        <button class="w-full bg-blue-600 text-white font-black h-12 rounded-2xl shadow-xl shadow-blue-600/30 flex items-center justify-center space-x-2 uppercase tracking-widest text-xs active:scale-[0.98] transition-all mt-6"><span>Submit Daily Report</span></button>
+                        <button class="w-full bg-blue-600 text-white font-black h-12 rounded-2xl shadow-xl shadow-blue-600/30 flex items-center justify-center space-x-2 uppercase tracking-widest text-xs active:scale-[0.98] transition-all mt-6">@click="submitReport('daily')" :disabled="isSaving"> <template x-if="isSaving"><i data-lucide="loader-2" class="w-4 h-4 animate-spin mr-2"></i></template> <span x-text="isSaving ? 'Submitting...' : 'Submit Daily Report'"></span></button>
                     </div>
 
                     <!-- Issue Report Form -->
@@ -658,7 +688,7 @@
                             </h3>
                             <div class="flex items-center space-x-2 bg-gray-50 px-2.5 py-1 rounded-xl border border-gray-100">
                                 <i data-lucide="calendar" class="w-3 h-3 text-gray-400"></i>
-                                <input type="date" value="2026-04-12" class="bg-transparent text-[10px] font-bold outline-none border-none">
+                                <input type="date" x-model="newDaily.date" class="bg-transparent text-[10px] font-bold outline-none border-none">
                             </div>
                         </div>
 
@@ -711,7 +741,7 @@
                                 </template>
                             </div>
                         </div>
-                        <button class="w-full bg-orange-500 text-white font-black h-12 rounded-2xl shadow-xl shadow-orange-500/30 flex items-center justify-center space-x-2 uppercase tracking-widest text-xs active:scale-[0.98] transition-all mt-6"><span>Submit Issue Report</span></button>
+                        <button class="w-full bg-orange-500 text-white font-black h-12 rounded-2xl shadow-xl shadow-orange-500/30 flex items-center justify-center space-x-2 uppercase tracking-widest text-xs active:scale-[0.98] transition-all mt-6">@click="submitReport('issue')" :disabled="isSaving"> <template x-if="isSaving"><i data-lucide="loader-2" class="w-4 h-4 animate-spin mr-2"></i></template> <span x-text="isSaving ? 'Submitting...' : 'Submit Issue Report'"></span></button>
                     </div>
                 </div>
             </section>

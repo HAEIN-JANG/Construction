@@ -25,7 +25,11 @@ else:
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    config = {
+        "cloudName": os.environ.get("CLOUDINARY_CLOUD_NAME", ""),
+        "uploadPreset": os.environ.get("CLOUDINARY_UPLOAD_PRESET", "")
+    }
+    return render_template('index.html', cloudinary_config=config)
 
 # GET: Fetch all initial data
 @app.route('/api/init-data', methods=['GET'])
