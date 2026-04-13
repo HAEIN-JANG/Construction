@@ -23,6 +23,10 @@ if url and "your_" not in url and key and "your_" not in key:
 else:
     print("Supabase 설정이 비어있습니다. UI 테스트 모드로 시작합니다.")
 
+@app.route('/sw.js')
+def service_worker():
+    return send_file('static/sw.js', mimetype='application/javascript')
+
 @app.route('/')
 def index():
     config = {

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="100" fill="#f97316"/>
+  <!-- Hard hat dome -->
+  <path d="M256 136 C160 136 100 200 100 272 L412 272 C412 200 352 136 256 136Z" fill="white"/>
+  <!-- Brim -->
+  <rect x="74" y="264" width="364" height="52" rx="26" fill="white"/>
+  <!-- Chin strap connector -->
+  <rect x="222" y="122" width="68" height="40" rx="20" fill="rgba(255,255,255,0.6)"/>
+  <!-- Stripe -->
+  <path d="M100 272 C100 272 136 232 256 232 C376 232 412 272 412 272" stroke="#f97316" stroke-width="16" fill="none"/>
+</svg>
