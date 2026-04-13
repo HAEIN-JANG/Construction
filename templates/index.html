@@ -1022,7 +1022,7 @@
                                 canvas.toBlob((blob) => {
                                     if (blob) resolve(blob);
                                     else reject(new Error('Image compression failed'));
-                                }, 'image/jpeg', 1.0);
+                                }, 'image/jpeg', 0.8);
                             };
                             img.src = e.target.result;
                         };
