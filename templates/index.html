@@ -830,18 +830,35 @@
                     this.isUploading = slot || true;
                     try {
                         const compressedBlob = await this.compressImage(file);
-                        const reader = new FileReader();
-                        reader.readAsDataURL(compressedBlob);
-                        reader.onloadend = () => {
-                            if (target === 'daily') this.newDaily.image_url = reader.result;
-                            else if (target === 'issue') {
-                                if (slot) this.newIssue['image_url_' + slot] = reader.result;
-                                else this.newIssue.image_url_1 = reader.result;
-                            }
-                            this.isUploading = false;
-                            this.saveEntry('Photo optimized and ready.');
-                        };
-                    } catch (e) { this.isUploading = false; }
+                        
+                        // Cloudinary Upload Logic
+                        const formData = new FormData();
+                        formData.append('file', compressedBlob);
+                        formData.append('upload_preset', this.cloudinaryConfig.uploadPreset || 'Construction');
+
+                        const res = await fetch(`https://api.cloudinary.com/v1_1/${this.cloudinaryConfig.cloudName}/image/upload`, {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const data = await res.json();
+                        if (data.error) throw new Error(data.error.message);
+
+                        const imageUrl = data.secure_url;
+
+                        if (target === 'daily') {
+                            this.newDaily.image_url = imageUrl;
+                        } else if (target === 'issue') {
+                            if (slot) this.newIssue['image_url_' + slot] = imageUrl;
+                            else this.newIssue.image_url_1 = imageUrl;
+                        }
+                        
+                        this.isUploading = false;
+                        this.saveEntry('Photo uploaded to Cloudinary successfully.');
+                    } catch (e) { 
+                        console.error('Cloudinary upload failed:', e);
+                        alert('Upload failed: ' + e.message);
+                        this.isUploading = false; 
+                    }
                 },
                 get commentCount() { return this.issues.concat(this.dailyReports).filter(i => !!i.manager_comment).length; },
                 get actionCount() { return this.issues.concat(this.dailyReports).filter(i => !!i.engineer_action).length; },
