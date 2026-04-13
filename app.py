@@ -2,7 +2,7 @@ import os, io
 import pandas as pd
 from flask import Flask, render_template, request, jsonify, send_file
 from dotenv import load_dotenv
-from supabase import create_client, Client, ClientOptions
+from supabase import create_client, Client
 from datetime import datetime
 
 load_dotenv()
@@ -12,12 +12,11 @@ app = Flask(__name__)
 # Supabase Setup
 url = os.environ.get("SUPABASE_URL", "https://wsvqeoufppcoeclbfbgz.supabase.co")
 key = os.environ.get("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndzdnFlb3VmcHBjb2VjbGJmYmd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMTQwNDIsImV4cCI6MjA5MTU5MDA0Mn0.p0rk8oPdVWO7xgvQiGUDSxzNWoi06NJZ3zcFN9SvGrE")
-options = ClientOptions(schema="construction-daily-report")
 supabase = None
 if url and "your_" not in url and key and "your_" not in key:
     try:
-        supabase = create_client(url, key, options=options)
-        print(f"Supabase connected to {url} (schema: construction-daily-report)")
+        supabase = create_client(url, key)
+        print(f"Supabase connected to {url} (schema: public)")
     except Exception as e:
         print(f"Supabase 연결 실패: {e}")
 else:
@@ -40,22 +39,13 @@ def index():
 def get_init_data():
     data = {"areas": [], "members": [], "issues": [], "dailyReports": []}
     if not supabase: return jsonify(data)
-    
+
     def fetch_safe(table_name):
         try:
-            # Try current schema (construction)
             res = supabase.table(table_name).select("*").execute()
-            if res.data: return res.data
+            return res.data or []
         except Exception as e:
-            print(f"Failed {table_name} in construction schema: {e}")
-            
-        try:
-            # Fallback to public schema
-            pub_client = create_client(url, key)
-            res = pub_client.table(table_name).select("*").execute()
-            return res.data
-        except Exception as e:
-            print(f"Failed {table_name} in public schema: {e}")
+            print(f"Failed {table_name}: {e}", flush=True)
             return []
 
     data["areas"] = fetch_safe("working_areas")
@@ -170,16 +160,10 @@ def export_excel():
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
             def fetch_df(table_name):
                 try:
-                    # Current schema
                     res = supabase.table(table_name).select("*").execute()
                     if res.data: return pd.DataFrame(res.data)
-                except: pass
-                try:
-                    # Fallback public
-                    pc = create_client(url, key)
-                    res = pc.table(table_name).select("*").execute()
-                    if res.data: return pd.DataFrame(res.data)
-                except: pass
+                except Exception as e:
+                    print(f"Excel fetch failed {table_name}: {e}", flush=True)
                 return pd.DataFrame([{"Message": f"No data in {table_name}"}])
 
             fetch_df("daily_reports").to_excel(writer, index=False, sheet_name='DailyReports')
@@ -194,4 +178,4 @@ def export_excel():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=False, port=5000)
