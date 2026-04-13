@@ -10,16 +10,16 @@ load_dotenv()
 app = Flask(__name__)
 
 # Supabase Setup
-url = "https://ognhvfvlboqblueuldlm.supabase.co"
-key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nbmh2ZnZsYm9xYmx1ZXVsZGxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjI3MzY2NTUsImV4cCI6MjA4ODMxMjY1NX0.paO5jr16M7yTySUAp9LgberoatDds9rTNa_eCU_ET_I"
+url = os.environ.get("SUPABASE_URL", "https://ognhvfvlboqblueuldlm.supabase.co")
+key = os.environ.get("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nbmh2ZnZsYm9xYmx1ZXVsZGxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzY2NTUsImV4cCI6MjA4ODMxMjY1NX0.paO5jr16M7yTySUAp9LgberoatDds9rTNa_eCU_ET_I")
 options = ClientOptions(schema="construction")
 supabase = None
-
-if url and "your_" not in url:
+if url and "your_" not in url and key and "your_" not in key:
     try:
-        supabase: Client = create_client(url, key, options=options)
+        supabase = create_client(url, key, options=options)
+        print(f"Supabase connected to {url} (schema: construction)")
     except Exception as e:
-        print(f"Supabase 연결 실패 (UI 테스트 모드): {e}")
+        print(f"Supabase 연결 실패: {e}")
 else:
     print("Supabase 설정이 비어있습니다. UI 테스트 모드로 시작합니다.")
 
@@ -64,6 +64,8 @@ def get_init_data():
 # POST: Save/Update Issue Report Comments
 @app.route('/api/issues/<int:id>', methods=['PATCH'])
 def update_issue(id):
+    print(f"PATCH /api/issues/{id} - supabase is {type(supabase)}")
+    if not supabase: return jsonify({"status": "error", "message": "Supabase not initialized"}), 500
     data = request.json
     try:
         # Only update columns provided in payload
@@ -75,71 +77,86 @@ def update_issue(id):
 # POST: Save/Update Daily Report Comments
 @app.route('/api/daily/<int:id>', methods=['PATCH'])
 def update_daily(id):
+    if not supabase: return jsonify({"status": "error", "message": "Supabase not initialized"}), 500
     data = request.json
     try:
         result = supabase.table("daily_reports").update(data).eq("id", id).execute()
         return jsonify({"status": "success", "data": result.data})
     except Exception as e:
+        print(f"Error updating daily: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400
 
 # POST: Update Area
 @app.route('/api/areas/<int:id>', methods=['PATCH'])
 def update_area(id):
+    if not supabase: return jsonify({"status": "error", "message": "Supabase not initialized"}), 500
     data = request.json
     try:
         result = supabase.table("working_areas").update(data).eq("id", id).execute()
         return jsonify({"status": "success", "data": result.data})
     except Exception as e:
+        print(f"Error updating area: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400
 
 # POST: Create New Area
 @app.route('/api/areas', methods=['POST'])
 def create_area():
+    print(f"POST /api/areas - supabase is {type(supabase)}")
+    if not supabase: return jsonify({"status": "error", "message": "Supabase not initialized"}), 500
     data = request.json
     try:
         result = supabase.table("working_areas").insert(data).execute()
         return jsonify({"status": "success", "data": result.data}), 201
     except Exception as e:
+        print(f"Error creating area: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400
 
 # POST: Update Member
 @app.route('/api/members/<int:id>', methods=['PATCH'])
 def update_member(id):
+    if not supabase: return jsonify({"status": "error", "message": "Supabase not initialized"}), 500
     data = request.json
     try:
         result = supabase.table("team_members").update(data).eq("id", id).execute()
         return jsonify({"status": "success", "data": result.data})
     except Exception as e:
+        print(f"Error updating member: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400
 
 # POST: Create New Member
 @app.route('/api/members', methods=['POST'])
 def create_member():
+    if not supabase: return jsonify({"status": "error", "message": "Supabase not initialized"}), 500
     data = request.json
     try:
         result = supabase.table("team_members").insert(data).execute()
         return jsonify({"status": "success", "data": result.data}), 201
     except Exception as e:
+        print(f"Error creating member: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400
 
 # POST: Create New Issue Report
 @app.route('/api/issues', methods=['POST'])
 def create_issue():
+    if not supabase: return jsonify({"status": "error", "message": "Supabase not initialized"}), 500
     data = request.json
     try:
         result = supabase.table("issue_reports").insert(data).execute()
         return jsonify({"status": "success", "data": result.data}), 201
     except Exception as e:
+        print(f"Error creating issue: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400
 
 # POST: Create New Daily Report
 @app.route('/api/daily', methods=['POST'])
 def create_daily():
+    if not supabase: return jsonify({"status": "error", "message": "Supabase not initialized"}), 500
     data = request.json
     try:
         result = supabase.table("daily_reports").insert(data).execute()
         return jsonify({"status": "success", "data": result.data}), 201
     except Exception as e:
+        print(f"Error creating daily: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400
 
 @app.route('/api/export-excel')
