@@ -71,12 +71,12 @@
                         <p class="text-[9px] font-bold opacity-80 mt-0.5 uppercase">Daily Reports</p>
                         <i data-lucide="file-text" class="absolute -right-3 -bottom-3 w-14 h-14 opacity-20"></i>
                     </div>
-                    <div @click="activeTab = 'comments'; $nextTick(() => lucide.createIcons());" class="bg-yellow-500 p-3 rounded-2xl text-white shadow-lg relative overflow-hidden cursor-pointer active:scale-95 transition-all">
+                    <div @click="switchTab('comments')" class="bg-yellow-500 p-3 rounded-2xl text-white shadow-lg relative overflow-hidden cursor-pointer active:scale-95 transition-all">
                         <span class="text-2xl font-bold" x-text="commentCount"></span>
                         <p class="text-[9px] font-bold opacity-80 mt-0.5 uppercase">Manager Comments</p>
                         <i data-lucide="message-circle" class="absolute -right-3 -bottom-3 w-14 h-14 opacity-20"></i>
                     </div>
-                    <div @click="activeTab = 'responses'; $nextTick(() => lucide.createIcons());" class="bg-green-600 p-3 rounded-2xl text-white shadow-lg relative overflow-hidden cursor-pointer active:scale-95 transition-all">
+                    <div @click="switchTab('responses')" class="bg-green-600 p-3 rounded-2xl text-white shadow-lg relative overflow-hidden cursor-pointer active:scale-95 transition-all">
                         <span class="text-2xl font-bold" x-text="actionCount"></span>
                         <p class="text-[9px] font-bold opacity-80 mt-0.5 uppercase">Engineer Actions</p>
                         <i data-lucide="check-circle" class="absolute -right-3 -bottom-3 w-14 h-14 opacity-20"></i>
@@ -89,7 +89,7 @@
                         <button @click="issueFilterStatus = 'All'; issueFilterCategory = 'All'; issueFilterPriority = 'All'; applyIssueFilters(); switchTab('issues');" class="text-[10px] text-orange-500 font-bold uppercase">View All →</button>
                     </div>
                     <div class="divide-y divide-gray-50 cursor-pointer">
-                        <template x-for="issue in issues.slice(0, 3)">
+                        <template x-for="issue in issues.slice(0, 3)" :key="issue.id">
                             <div @click="activeTab = 'issues'; selectedIssue = issue; $nextTick(() => lucide.createIcons());" class="px-3 py-2 flex items-center justify-between hover:bg-gray-50 transition-colors">
                                 <div class="flex items-center space-x-2">
                                     <div class="bg-red-50 p-1.5 rounded-lg text-red-500 flex-shrink-0"><i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i></div>
@@ -111,7 +111,7 @@
                         <h2 class="text-[15px] font-black tracking-tight text-gray-800">Daily Report List</h2>
                     </header>
                     <div class="space-y-2">
-                        <template x-for="report in filteredDaily">
+                        <template x-for="report in filteredDaily" :key="report.id">
                             <div @click="selectedDaily = report; $nextTick(() => lucide.createIcons());" class="bg-white px-4 py-3 rounded-2xl border border-gray-100 shadow-sm hover:border-blue-500 transition-all cursor-pointer group">
                                 <div class="flex justify-between items-center">
                                     <div class="flex items-center space-x-3">
@@ -290,7 +290,7 @@
                         </button>
                     </div>
                     <div class="space-y-2">
-                        <template x-for="issue in filteredIssues">
+                        <template x-for="issue in filteredIssues" :key="issue.id">
                             <div @click="selectedIssue = issue; $nextTick(() => lucide.createIcons());" class="bg-white px-4 py-3 rounded-2xl border border-gray-100 shadow-sm hover:border-orange-500 transition-all cursor-pointer group">
                                 <div class="flex justify-between items-center">
                                     <div class="flex items-center space-x-3">
@@ -509,7 +509,7 @@
             <section x-show="activeTab === 'comments'" x-cloak class="p-4 md:p-8 space-y-4">
                 <header class="flex items-center space-x-2"><i data-lucide="message-circle" class="text-yellow-500 w-6 h-6"></i><h2 class="text-xl font-bold text-gray-700">Manager Comments</h2></header>
                 <div class="space-y-3">
-                    <template x-for="item in [...issues, ...dailyReports].filter(x => x.manager_comment)">
+                    <template x-for="item in [...issues, ...dailyReports].filter(x => x.manager_comment)" :key="(item.priority ? 'i' : 'd') + item.id">
                         <div @click="item.priority ? (selectedIssue = item, activeTab = 'issues') : (selectedDaily = item, activeTab = 'daily-reports'); $nextTick(() => lucide.createIcons());" class="bg-white p-5 rounded-2xl border-l-4 border-yellow-500 shadow-sm space-y-2 hover:bg-yellow-50 transition-all cursor-pointer">
                             <div class="flex justify-between items-center"><span class="text-[9px] font-black text-yellow-600 uppercase" x-text="item.area"></span><span class="text-[9px] text-gray-400" x-text="item.date"></span></div>
                             <h4 class="font-bold text-sm" x-text="item.title"></h4>
@@ -522,7 +522,7 @@
             <section x-show="activeTab === 'responses'" x-cloak class="p-4 md:p-8 space-y-4">
                 <header class="flex items-center space-x-2"><i data-lucide="check-circle" class="text-green-600 w-6 h-6"></i><h2 class="text-xl font-bold text-gray-700">Engineer Actions</h2></header>
                 <div class="space-y-3">
-                    <template x-for="item in [...issues, ...dailyReports].filter(x => x.engineer_action)">
+                    <template x-for="item in [...issues, ...dailyReports].filter(x => x.engineer_action)" :key="(item.priority ? 'i' : 'd') + item.id">
                         <div @click="item.priority ? (selectedIssue = item, activeTab = 'issues') : (selectedDaily = item, activeTab = 'daily-reports'); $nextTick(() => lucide.createIcons());" class="bg-white p-5 rounded-2xl border-l-4 border-green-500 shadow-sm space-y-2 hover:bg-green-50 transition-all cursor-pointer">
                             <div class="flex justify-between items-center"><span class="text-[9px] font-black text-green-600 uppercase" x-text="item.area"></span><span class="text-[9px] text-gray-400" x-text="item.date"></span></div>
                             <h4 class="font-bold text-sm" x-text="item.title"></h4>
@@ -670,7 +670,7 @@
                     <button @click="editingArea = { id: null, name: '', desc: '' }; showAreaModal = true" class="bg-orange-500 text-white px-3 py-1.5 rounded-xl shadow-md text-xs font-bold transition-all active:scale-95">+ Add</button>
                 </header>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                    <template x-for="area in areas">
+                    <template x-for="area in areas" :key="area.id">
                         <div class="bg-white px-4 py-3 rounded-2xl border border-gray-100 shadow-sm hover:border-orange-500 transition-all relative group">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-2">
@@ -694,7 +694,7 @@
                     <button @click="editingMember = { id: null, name: '', role: '', dept: '' }; showMemberModal = true" class="bg-blue-600 text-white px-3 py-1.5 rounded-xl shadow-md text-xs font-bold transition-all active:scale-95">+ Add</button>
                 </header>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <template x-for="member in members">
+                    <template x-for="member in members" :key="member.id">
                         <div class="bg-white px-4 py-3 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between group hover:shadow-md transition-all">
                             <div class="flex items-center space-x-3">
                                 <div class="bg-blue-50 text-blue-600 w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0" x-text="member.name.charAt(0)"></div>
@@ -903,14 +903,15 @@
                 },
                 initData() {
                     fetch('/api/init-data')
-                        .then(res => res.json())
+                        .then(res => { if (!res.ok) throw new Error('Server error ' + res.status); return res.json(); })
                         .then(data => {
                             this.areas = data.areas || [];
                             this.members = data.members || [];
                             this.issues = data.issues || [];
                             this.dailyReports = data.dailyReports || [];
                             this.$nextTick(() => lucide.createIcons());
-                        });
+                        })
+                        .catch(err => console.error('Failed to load data:', err));
                 },
                 async saveEntry(msg, url = null, payload = null) {
                     if (this.isSaving) return;
@@ -936,6 +937,7 @@
                         } catch (e) {
                             console.error('Persistence failed:', e);
                             alert('Save failed: ' + e.message);
+                            return;
                         } finally {
                             this.isSaving = false;
                         }
@@ -964,7 +966,7 @@
                         this.$nextTick(() => lucide.createIcons());
                         setTimeout(() => this.showNotification = false, 3000);
                         if (type === 'daily') {
-                            this.newDaily = { title: '', area: '', weather: '', desc: '', date: new Date().toISOString().split('T')[0], image_url: '' };
+                            this.newDaily = { title: '', area: '', weather: '', activity_id: '', desc: '', date: new Date().toISOString().split('T')[0], image_url: '' };
                         } else {
                             this.newIssue = { title: '', area: '', weather: '', category: '', priority: '', desc: '', date: new Date().toISOString().split('T')[0], image_url_1: '', image_url_2: '', image_url_3: '' };
                         }
@@ -985,12 +987,13 @@
                     return this.dailyReports.filter(d => d.area === this.dailyFilter);
                 },
                 async compressImage(file) {
-                    return new Promise((resolve) => {
+                    return new Promise((resolve, reject) => {
                         const reader = new FileReader();
                         reader.readAsDataURL(file);
+                        reader.onerror = () => reject(new Error('Failed to read file'));
                         reader.onload = (e) => {
                             const img = new Image();
-                            img.src = e.target.result;
+                            img.onerror = () => reject(new Error('Failed to load image'));
                             img.onload = () => {
                                 const canvas = document.createElement('canvas');
                                 const MAX_DIM = 1024;
@@ -1005,8 +1008,12 @@
                                 ctx.fillStyle = '#ffffff';
                                 ctx.fillRect(0, 0, width, height);
                                 ctx.drawImage(img, 0, 0, width, height);
-                                canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 1.0);
+                                canvas.toBlob((blob) => {
+                                    if (blob) resolve(blob);
+                                    else reject(new Error('Image compression failed'));
+                                }, 'image/jpeg', 1.0);
                             };
+                            img.src = e.target.result;
                         };
                     });
                 },
