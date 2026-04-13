@@ -541,7 +541,7 @@
                                 <input type="date" x-model="newDaily.date" class="bg-transparent text-[10px] font-bold outline-none border-none">
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-3 gap-3">
                             <div>
                                 <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Weather *</label>
                                 <select x-model="newDaily.weather" class="w-full bg-gray-50 border border-gray-100 rounded-xl p-2 text-[11px] font-bold outline-none appearance-none cursor-pointer hover:bg-white transition-all text-blue-600">
@@ -556,8 +556,12 @@
                                     <template x-for="area in areas"><option x-text="area.name"></option></template>
                                 </select>
                             </div>
-                            <div class="col-span-2"><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Report Title *</label><input type="text" x-model="newDaily.title" placeholder="e.g. Turbine Foundation Pouring" class="w-full bg-gray-50 border border-gray-100 rounded-xl p-2.5 text-[13px] focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"></div>
-                            <div class="col-span-2"><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Work Description *</label><textarea rows="3" x-model="newDaily.desc" placeholder="Describe the work performed today..." class="w-full bg-gray-50 border border-gray-100 rounded-xl p-2.5 text-[13px] focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"></textarea></div>
+                            <div>
+                                <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Activity ID</label>
+                                <input type="text" x-model="newDaily.activity_id" placeholder="e.g. A-101" class="w-full bg-gray-50 border border-gray-100 rounded-xl p-2 text-[11px] outline-none hover:bg-white focus:ring-4 focus:ring-blue-500/10 transition-all">
+                            </div>
+                            <div class="col-span-3"><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Report Title *</label><input type="text" x-model="newDaily.title" placeholder="e.g. Turbine Foundation Pouring" class="w-full bg-gray-50 border border-gray-100 rounded-xl p-2.5 text-[13px] focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"></div>
+                            <div class="col-span-3"><label class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Work Description *</label><textarea rows="3" x-model="newDaily.desc" placeholder="Describe the work performed today..." class="w-full bg-gray-50 border border-gray-100 rounded-xl p-2.5 text-[13px] focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"></textarea></div>
                         </div>
                         <div>
                             <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Site Photo</label>
@@ -842,7 +846,7 @@
                 selectedIssue: null,
                 selectedDaily: null,
                 editingField: null,
-                newDaily: { title: '', area: '', weather: '', desc: '', date: new Date().toISOString().split('T')[0], image_url: '' },
+                newDaily: { title: '', area: '', weather: '', activity_id: '', desc: '', date: new Date().toISOString().split('T')[0], image_url: '' },
                 newIssue: { title: '', area: '', weather: '', category: '', priority: '', desc: '', date: new Date().toISOString().split('T')[0], image_url_1: '', image_url_2: '', image_url_3: '' },
 
                 init() {
