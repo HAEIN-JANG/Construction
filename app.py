@@ -10,14 +10,14 @@ load_dotenv()
 app = Flask(__name__)
 
 # Supabase Setup
-url = os.environ.get("SUPABASE_URL", "https://ognhvfvlboqblueuldlm.supabase.co")
-key = os.environ.get("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nbmh2ZnZsYm9xYmx1ZXVsZGxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzY2NTUsImV4cCI6MjA4ODMxMjY1NX0.paO5jr16M7yTySUAp9LgberoatDds9rTNa_eCU_ET_I")
-options = ClientOptions(schema="construction")
+url = os.environ.get("SUPABASE_URL", "https://wsvqeoufppcoeclbfbgz.supabase.co")
+key = os.environ.get("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndzdnFlb3VmcHBjb2VjbGJmYmd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMTQwNDIsImV4cCI6MjA5MTU5MDA0Mn0.p0rk8oPdVWO7xgvQiGUDSxzNWoi06NJZ3zcFN9SvGrE")
+options = ClientOptions(schema="construction-daily-report")
 supabase = None
 if url and "your_" not in url and key and "your_" not in key:
     try:
         supabase = create_client(url, key, options=options)
-        print(f"Supabase connected to {url} (schema: construction)")
+        print(f"Supabase connected to {url} (schema: construction-daily-report)")
     except Exception as e:
         print(f"Supabase 연결 실패: {e}")
 else:
