@@ -8,6 +8,7 @@ from datetime import datetime
 load_dotenv()
 
 app = Flask(__name__)
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 # Supabase Setup
 url = os.environ.get("SUPABASE_URL", "https://wsvqeoufppcoeclbfbgz.supabase.co")
@@ -178,4 +179,4 @@ def export_excel():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=False, port=5000)
+    app.run(debug=True, port=5006)
