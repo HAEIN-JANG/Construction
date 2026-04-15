@@ -106,13 +106,16 @@
             <section x-show="activeTab === 'daily-reports'" x-cloak class="p-3 md:p-8 space-y-3">
                 <!-- LIST VIEW -->
                 <div x-show="!selectedDaily" class="space-y-3">
-                    <header class="flex items-center justify-between bg-white px-4 py-3 rounded-2xl shadow-sm border border-gray-100">
-                        <div class="flex items-center space-x-2">
-                            <i data-lucide="file-text" class="w-4 h-4 text-blue-500"></i>
-                            <h2 class="text-[15px] font-black tracking-tight text-gray-800">Daily Report List</h2>
+                    <header class="flex items-center gap-2 bg-white px-4 py-3 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex items-center space-x-2 flex-1 min-w-0">
+                            <i data-lucide="file-text" class="w-4 h-4 text-blue-500 flex-shrink-0"></i>
+                            <h2 class="text-[15px] font-black tracking-tight text-gray-800 truncate">Daily Report List</h2>
                         </div>
                         <input type="date" x-model="dailyDateFilter"
-                               class="text-[11px] font-bold text-gray-600 bg-gray-50 border border-gray-200 rounded-xl px-2 py-1.5 outline-none cursor-pointer hover:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all">
+                               class="text-[11px] font-bold text-gray-600 bg-gray-50 border border-gray-200 rounded-xl px-2 py-1.5 outline-none cursor-pointer hover:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all flex-shrink-0">
+                        <a href="/api/export-excel/daily" class="flex-shrink-0 bg-green-600 text-white text-[9px] px-2 py-1.5 rounded-xl shadow-sm hover:bg-green-700 transition-all flex items-center gap-1 uppercase font-black active:scale-95">
+                            <i data-lucide="download" class="w-3 h-3"></i><span>EXCEL</span>
+                        </a>
                     </header>
                     <div class="space-y-2">
                         <template x-if="filteredDaily.length === 0">
@@ -147,23 +150,25 @@
 
                 <!-- DETAIL VIEW -->
                 <div x-show="selectedDaily" class="space-y-1.5" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4">
-                    <!-- Row 1: Back + "Daily Report Detail" + Date + Save -->
+                    <!-- Row 1: Back + "Daily Report Detail" + Date -->
                     <header class="flex items-center gap-2 pb-0.5">
                         <button @click="selectedDaily = null; $nextTick(() => { lucide.createIcons(); window.scrollTo(0,0); });" class="p-1.5 bg-white shadow-sm border border-gray-100 rounded-full text-gray-400 hover:text-blue-500 transition-all active:scale-90 flex-shrink-0">
                             <i data-lucide="arrow-left" class="w-4 h-4"></i>
                         </button>
                         <h2 class="flex-1 min-w-0 text-[17px] font-black text-gray-900 tracking-tight">Daily Report Detail</h2>
                         <span class="text-[10px] font-bold text-gray-400 flex-shrink-0 whitespace-nowrap" x-text="selectedDaily?.date"></span>
-                        <button @click="saveDailyAll()" :disabled="isSaving" class="flex-shrink-0 bg-blue-500 text-white text-[9px] px-2.5 py-1 rounded-full shadow-md hover:bg-blue-600 transition-all flex items-center gap-1 uppercase font-black active:scale-95 disabled:opacity-50">
-                            <i data-lucide="save" class="w-3 h-3"></i><span>SAVE</span>
-                        </button>
                     </header>
                     <template x-if="selectedDaily">
                         <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                         <div class="p-3 space-y-2">
                             <div class="space-y-1.5">
-                                <!-- Row 2: Title -->
-                                <h1 class="text-[15px] font-black text-gray-900 leading-tight tracking-tight" x-text="selectedDaily?.title"></h1>
+                                <!-- Row 2: Title + Save -->
+                                <div class="flex items-center gap-2">
+                                    <h1 class="flex-1 min-w-0 text-[15px] font-black text-gray-900 leading-tight tracking-tight" x-text="selectedDaily?.title"></h1>
+                                    <button @click="saveDailyAll()" :disabled="isSaving" class="flex-shrink-0 bg-blue-500 text-white text-[9px] px-2.5 py-1 rounded-full shadow-md hover:bg-blue-600 transition-all flex items-center gap-1 uppercase font-black active:scale-95 disabled:opacity-50">
+                                        <i data-lucide="save" class="w-3 h-3"></i><span>SAVE</span>
+                                    </button>
+                                </div>
                                 <!-- Row 3: AREA / WEATHER (balanced, matching Issue layout) -->
                                 <div class="flex items-center bg-gray-50/50 rounded-xl border border-gray-100 overflow-hidden text-[9px]">
                                     <div class="flex-1 flex items-center justify-center gap-3 py-1.5 px-1">
@@ -231,9 +236,12 @@
             <section x-show="activeTab === 'issues'" x-cloak class="p-3 md:p-8 space-y-3">
                 <!-- LIST VIEW -->
                 <div x-show="!selectedIssue" class="space-y-3">
-                    <header class="flex items-center space-x-2 bg-white px-4 py-3 rounded-2xl shadow-sm border border-gray-100">
-                        <i data-lucide="alert-triangle" class="w-4 h-4 text-orange-500"></i>
-                        <h2 class="text-[15px] font-black tracking-tight text-gray-800">Issue Status List</h2>
+                    <header class="flex items-center gap-2 bg-white px-4 py-3 rounded-2xl shadow-sm border border-gray-100">
+                        <i data-lucide="alert-triangle" class="w-4 h-4 text-orange-500 flex-shrink-0"></i>
+                        <h2 class="text-[15px] font-black tracking-tight text-gray-800 flex-1">Issue Status List</h2>
+                        <a href="/api/export-excel/issues" class="flex-shrink-0 bg-green-600 text-white text-[9px] px-2 py-1.5 rounded-xl shadow-sm hover:bg-green-700 transition-all flex items-center gap-1 uppercase font-black active:scale-95">
+                            <i data-lucide="download" class="w-3 h-3"></i><span>EXCEL</span>
+                        </a>
                     </header>
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
                         <button @click="issueFilterCategory = 'CLIENT'; issueFilterStatus = 'All'; issueFilterPriority = 'All'; applyIssueFilters();" :class="appliedIssueFilters.category === 'CLIENT' ? 'bg-blue-500 text-white shadow-lg ring-4 ring-blue-500/20' : 'bg-blue-50 text-blue-700 border border-blue-100'" class="p-2.5 rounded-2xl flex flex-col items-center justify-center space-y-0.5 transition-all active:scale-95">

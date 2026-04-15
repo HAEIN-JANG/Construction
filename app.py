@@ -158,31 +158,39 @@ def create_daily():
         print(f"Error creating daily: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400
 
-@app.route('/api/export-excel')
-def export_excel():
+def make_excel(tables):
     if not supabase:
         return jsonify({"status": "error", "message": "Database not connected"}), 500
     try:
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            def fetch_df(table_name):
+            for table_name, sheet_name in tables:
                 try:
                     res = supabase.table(table_name).select("*").execute()
-                    if res.data: return pd.DataFrame(res.data)
+                    df = pd.DataFrame(res.data) if res.data else pd.DataFrame([{"Message": f"No data in {table_name}"}])
                 except Exception as e:
                     print(f"Excel fetch failed {table_name}: {e}", flush=True)
-                return pd.DataFrame([{"Message": f"No data in {table_name}"}])
-
-            fetch_df("daily_reports").to_excel(writer, index=False, sheet_name='DailyReports')
-            fetch_df("issue_reports").to_excel(writer, index=False, sheet_name='IssueReports')
-        
+                    df = pd.DataFrame([{"Message": f"No data in {table_name}"}])
+                df.to_excel(writer, index=False, sheet_name=sheet_name)
         output.seek(0)
         ts = datetime.now().strftime('%Y%m%d_%H%M%S')
         filename = f"Construction_Report_{ts}.xlsx"
-        return send_file(output, as_attachment=True, download_name=filename, 
+        return send_file(output, as_attachment=True, download_name=filename,
                          mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/api/export-excel')
+def export_excel():
+    return make_excel([("daily_reports", "DailyReports"), ("issue_reports", "IssueReports")])
+
+@app.route('/api/export-excel/daily')
+def export_excel_daily():
+    return make_excel([("daily_reports", "DailyReports")])
+
+@app.route('/api/export-excel/issues')
+def export_excel_issues():
+    return make_excel([("issue_reports", "IssueReports")])
 
 if __name__ == '__main__':
     app.run(debug=True, port=5006)
