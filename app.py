@@ -2,7 +2,7 @@ import os, io
 import pandas as pd
 from flask import Flask, render_template, request, jsonify, send_file
 from dotenv import load_dotenv
-from supabase import create_client, Client
+from supabase import create_client, Client, ClientOptions
 from datetime import datetime
 
 load_dotenv()
@@ -13,11 +13,15 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 # Supabase Setup
 url = os.environ.get("SUPABASE_URL", "https://wsvqeoufppcoeclbfbgz.supabase.co")
 key = os.environ.get("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndzdnFlb3VmcHBjb2VjbGJmYmd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMTQwNDIsImV4cCI6MjA5MTU5MDA0Mn0.p0rk8oPdVWO7xgvQiGUDSxzNWoi06NJZ3zcFN9SvGrE")
+schema = os.environ.get("SUPABASE_SCHEMA", "public")
 supabase = None
 if url and "your_" not in url and key and "your_" not in key:
     try:
-        supabase = create_client(url, key)
-        print(f"Supabase connected to {url} (schema: public)")
+        if schema != "public":
+            supabase = create_client(url, key, options=ClientOptions(schema=schema))
+        else:
+            supabase = create_client(url, key)
+        print(f"Supabase connected to {url} (schema: {schema})")
     except Exception as e:
         print(f"Supabase 연결 실패: {e}")
 else:
