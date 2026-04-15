@@ -585,8 +585,8 @@
                     <template x-for="member in members" :key="member.id">
                         <div class="bg-white px-4 py-3 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between group hover:shadow-md transition-all">
                             <div class="flex items-center space-x-3">
-                                <div class="bg-blue-50 text-blue-600 w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0" x-text="member.name.charAt(0)"></div>
-                                <div><h4 class="font-bold text-[13px]" x-text="member.name"></h4><p class="text-[10px] text-gray-400 font-medium" x-text="member.role + ' · ' + member.dept"></p></div>
+                                <div class="bg-blue-50 text-blue-600 w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0" x-text="(member.name || '?').charAt(0)"></div>
+                                <div><h4 class="font-bold text-[13px]" x-text="member.name"></h4><p class="text-[10px] text-gray-400 font-medium" x-text="(member.role || '') + ' · ' + (member.dept || '')"></p></div>
                             </div>
                             <button @click="editingMember = Object.assign({}, member); showMemberModal = true; $nextTick(() => lucide.createIcons());" class="p-1.5 bg-gray-50 text-gray-400 rounded-xl opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:text-blue-600 transition-all">
                                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
@@ -789,7 +789,7 @@
                         this.saveEntry('Photo removed.', '/api/issues/' + this.selectedIssue.id, payload);
                     }
                 },
-                initData() {
+                async initData() {
                     // Load cached data instantly so UI is populated before network response
                     try {
                         const cached = localStorage.getItem('reportApp_cache');
@@ -802,18 +802,20 @@
                             this.$nextTick(() => lucide.createIcons());
                         }
                     } catch(e) {}
-                    // Refresh from server in background
-                    fetch('/api/init-data')
-                        .then(res => { if (!res.ok) throw new Error('Server error ' + res.status); return res.json(); })
-                        .then(data => {
-                            this.areas = data.areas || [];
-                            this.members = data.members || [];
-                            this.issues = data.issues || [];
-                            this.dailyReports = data.dailyReports || [];
-                            try { localStorage.setItem('reportApp_cache', JSON.stringify(data)); } catch(e) {}
-                            this.$nextTick(() => lucide.createIcons());
-                        })
-                        .catch(err => console.error('Failed to load data:', err));
+                    // Refresh from server
+                    try {
+                        const res = await fetch('/api/init-data');
+                        if (!res.ok) throw new Error('Server error ' + res.status);
+                        const data = await res.json();
+                        this.areas = data.areas || [];
+                        this.members = data.members || [];
+                        this.issues = data.issues || [];
+                        this.dailyReports = data.dailyReports || [];
+                        try { localStorage.setItem('reportApp_cache', JSON.stringify(data)); } catch(e) {}
+                        this.$nextTick(() => lucide.createIcons());
+                    } catch(err) {
+                        console.error('Failed to load data:', err);
+                    }
                 },
                 saveIssueAll() {
                     if (!this.selectedIssue?.id) return;
@@ -847,8 +849,8 @@
                     if (url && payload) {
                         this.isSaving = true;
                         try {
-                            const isNew = url.endsWith('undefined') || url.endsWith('/') || !/\/\d+$/.test(url);
-                            const finalUrl = isNew ? url.split('/').slice(0, 3).join('/') : url;
+                            const isNew = url.endsWith('undefined') || url.endsWith('null') || url.endsWith('/') || !/\/\d+$/.test(url);
+                            const finalUrl = isNew ? url.replace(/\/(undefined|null)$/, '') : url;
                             const method = isNew ? 'POST' : 'PATCH';
                             
                             // Clean payload: remove id if it's a new record

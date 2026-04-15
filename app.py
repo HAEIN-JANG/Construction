@@ -135,6 +135,8 @@ def create_member():
 def create_issue():
     if not supabase: return jsonify({"status": "error", "message": "Supabase not initialized"}), 500
     data = request.json
+    if not data or not data.get('title'):
+        return jsonify({"status": "error", "message": "Title is required"}), 400
     try:
         result = supabase.table("issue_reports").insert(data).execute()
         return jsonify({"status": "success", "data": result.data}), 201
@@ -147,6 +149,8 @@ def create_issue():
 def create_daily():
     if not supabase: return jsonify({"status": "error", "message": "Supabase not initialized"}), 500
     data = request.json
+    if not data or not data.get('title'):
+        return jsonify({"status": "error", "message": "Title is required"}), 400
     try:
         result = supabase.table("daily_reports").insert(data).execute()
         return jsonify({"status": "success", "data": result.data}), 201
@@ -156,6 +160,8 @@ def create_daily():
 
 @app.route('/api/export-excel')
 def export_excel():
+    if not supabase:
+        return jsonify({"status": "error", "message": "Database not connected"}), 500
     try:
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
