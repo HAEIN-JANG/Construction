@@ -944,10 +944,10 @@
                 },
                 get filteredIssues() {
                     return this.issues.filter(i => {
-                        const matchStatus = this.appliedIssueFilters.status === 'All' || i.status === this.appliedIssueFilters.status;
+                        if (i.status === 'Closed') return false;
                         const matchCategory = this.appliedIssueFilters.category === 'All' || i.category === this.appliedIssueFilters.category;
                         const matchPriority = this.appliedIssueFilters.priority === 'All' || i.priority === this.appliedIssueFilters.priority;
-                        return matchStatus && matchCategory && matchPriority;
+                        return matchCategory && matchPriority;
                     });
                 },
                 get filteredDaily() {
