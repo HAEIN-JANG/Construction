@@ -139,6 +139,10 @@ def create_issue():
         return jsonify({"status": "error", "message": "Title is required"}), 400
     try:
         result = supabase.table("issue_reports").insert(data).execute()
+        # Fetch the newly created record by title+date to get real id (nulls last)
+        if result.data:
+            fetched = supabase.table("issue_reports").select("*").eq("title", data.get("title","")).eq("date", data.get("date","")).order("id", desc=True, nullsfirst=False).limit(1).execute()
+            return jsonify({"status": "success", "data": fetched.data}), 201
         return jsonify({"status": "success", "data": result.data}), 201
     except Exception as e:
         print(f"Error creating issue: {e}")
@@ -153,6 +157,10 @@ def create_daily():
         return jsonify({"status": "error", "message": "Title is required"}), 400
     try:
         result = supabase.table("daily_reports").insert(data).execute()
+        # Fetch the newly created record to get real id (nulls last)
+        if result.data:
+            fetched = supabase.table("daily_reports").select("*").eq("title", data.get("title","")).eq("date", data.get("date","")).order("id", desc=True, nullsfirst=False).limit(1).execute()
+            return jsonify({"status": "success", "data": fetched.data}), 201
         return jsonify({"status": "success", "data": result.data}), 201
     except Exception as e:
         print(f"Error creating daily: {e}")
@@ -193,4 +201,4 @@ def export_excel_issues():
     return make_excel([("issue_reports", "IssueReports")])
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5006)
+    app.run(debug=True, port=5000)
