@@ -89,7 +89,7 @@
                         <button @click="issueFilterStatus = 'All'; issueFilterCategory = 'All'; issueFilterPriority = 'All'; applyIssueFilters(); switchTab('issues');" class="text-[10px] text-orange-500 font-bold uppercase">View All →</button>
                     </div>
                     <div class="divide-y divide-gray-50 cursor-pointer">
-                        <template x-for="issue in issues.filter(i => i.status !== 'Closed').slice().sort((a,b) => (b.id||0)-(a.id||0)).slice(0,3)" :key="issue.id">
+                        <template x-for="(issue, idx) in issues.filter(i => i.status !== 'Closed').slice().sort((a,b) => (b.id||0)-(a.id||0)).slice(0,3)" :key="issue.id != null ? issue.id : 'r'+idx">
                             <div @click="activeTab = 'issues'; selectedIssue = issue; $nextTick(() => lucide.createIcons());" class="px-3 py-2 flex items-center justify-between hover:bg-gray-50 transition-colors">
                                 <div class="flex items-center space-x-2">
                                     <div class="bg-red-50 p-1.5 rounded-lg text-red-500 flex-shrink-0"><i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i></div>
@@ -133,7 +133,7 @@
                                 <p class="text-[10px] text-gray-300" x-text="dailyDateFilter"></p>
                             </div>
                         </template>
-                        <template x-for="report in filteredDaily" :key="report.id">
+                        <template x-for="(report, idx) in filteredDaily" :key="report.id != null ? report.id : 'd'+idx">
                             <div @click="selectedDaily = report; $nextTick(() => lucide.createIcons());" class="bg-white px-4 py-3 rounded-2xl border border-gray-100 shadow-sm hover:border-blue-500 transition-all cursor-pointer group">
                                 <div class="flex justify-between items-center">
                                     <div class="flex items-center space-x-3">
@@ -275,7 +275,7 @@
                         </button>
                     </div>
                     <div class="space-y-2">
-                        <template x-for="issue in filteredIssues" :key="issue.id">
+                        <template x-for="(issue, idx) in filteredIssues" :key="issue.id != null ? issue.id : 'i'+idx">
                             <div @click="selectedIssue = issue; $nextTick(() => lucide.createIcons());" class="bg-white px-4 py-3 rounded-2xl border border-gray-100 shadow-sm hover:border-orange-500 transition-all cursor-pointer group">
                                 <div class="flex justify-between items-center">
                                     <div class="flex items-center space-x-3">

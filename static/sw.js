@@ -1,4 +1,4 @@
-const CACHE_NAME = 'site-report-v2';
+const CACHE_NAME = 'site-report-v3';
 const STATIC_ASSETS = [
   '/static/css/style.css',
   '/static/manifest.json',
