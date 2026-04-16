@@ -275,7 +275,7 @@
                         </button>
                     </div>
                     <div class="space-y-2">
-                        <template x-for="(issue, idx) in filteredIssues" :key="issue.id != null ? issue.id : 'i'+idx">
+                        <template x-for="(issue, idx) in issues.filter(i => i.status !== 'Closed' && (appliedIssueFilters.category === 'All' || i.category === appliedIssueFilters.category) && (appliedIssueFilters.priority === 'All' || i.priority === appliedIssueFilters.priority))" :key="issue.id != null ? issue.id : 'i'+idx">
                             <div @click="selectedIssue = issue; $nextTick(() => lucide.createIcons());" class="bg-white px-4 py-3 rounded-2xl border border-gray-100 shadow-sm hover:border-orange-500 transition-all cursor-pointer group">
                                 <!-- Row 1: Icon + Title + Chevron -->
                                 <div class="flex items-start gap-2.5">
