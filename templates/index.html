@@ -15,7 +15,18 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <style>[x-cloak] { display: none !important; }</style>
+    <style>
+      [x-cloak] { display: none !important; }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      .issue-title {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+      }
+    </style>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -282,7 +293,7 @@
                                     <div :class="issue.priority === 'Critical' ? 'bg-red-50 text-red-500' : 'bg-orange-50 text-orange-500'" class="p-2 rounded-xl flex-shrink-0 mt-0.5">
                                         <i data-lucide="alert-triangle" class="w-4 h-4"></i>
                                     </div>
-                                    <h4 class="flex-1 min-w-0 font-bold text-[13px] text-gray-700 leading-snug line-clamp-2" x-text="issue.title"></h4>
+                                    <h4 class="issue-title flex-1 min-w-0 font-bold text-[13px] text-gray-700 leading-snug" x-text="issue.title"></h4>
                                     <i data-lucide="chevron-right" class="w-4 h-4 text-gray-200 group-hover:text-orange-500 transition-all flex-shrink-0 mt-1"></i>
                                 </div>
                                 <!-- Row 2: Area/Date + Priority + Status badges -->
