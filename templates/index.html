@@ -100,7 +100,7 @@
                         <button @click="issueFilterStatus = 'All'; issueFilterCategory = 'All'; issueFilterPriority = 'All'; applyIssueFilters(); switchTab('issues');" class="text-[10px] text-orange-500 font-bold uppercase">View All →</button>
                     </div>
                     <div class="divide-y divide-gray-50 cursor-pointer">
-                        <template x-for="(issue, idx) in issues.filter(i => i.status !== 'Closed').slice().sort((a,b) => (b.id||0)-(a.id||0)).slice(0,3)" :key="issue.id != null ? issue.id : 'r'+idx">
+                        <template x-for="(issue, idx) in issues.filter(i => i.status !== 'Closed').slice().sort((a,b) => { const ta = a.created_at||a.date||''; const tb = b.created_at||b.date||''; return tb > ta ? 1 : tb < ta ? -1 : (b.id||0)-(a.id||0); }).slice(0,3)" :key="issue.id != null ? issue.id : 'r'+idx">
                             <div @click="activeTab = 'issues'; selectedIssue = issue; $nextTick(() => lucide.createIcons());" class="px-3 py-2 flex items-center justify-between hover:bg-gray-50 transition-colors">
                                 <div class="flex items-center space-x-2">
                                     <div class="bg-red-50 p-1.5 rounded-lg text-red-500 flex-shrink-0"><i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i></div>
