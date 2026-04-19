@@ -201,6 +201,11 @@
                                     </div>
                                     <div class="w-px h-5 bg-gray-200 flex-shrink-0"></div>
                                     <div class="flex-1 flex items-center justify-center gap-1 py-1.5 px-1">
+                                        <i data-lucide="hash" class="w-3 h-3 text-gray-400 flex-shrink-0"></i>
+                                        <input type="text" x-model="selectedDaily.activity_id" class="w-14 bg-transparent text-[9px] font-black text-gray-700 text-center outline-none border-none" placeholder="Activity">
+                                    </div>
+                                    <div class="w-px h-5 bg-gray-200 flex-shrink-0"></div>
+                                    <div class="flex-1 flex items-center justify-center gap-1 py-1.5 px-1">
                                         <i data-lucide="users" class="w-3 h-3 text-gray-400 flex-shrink-0"></i>
                                         <input type="number" min="0" x-model="selectedDaily.manpower" class="w-10 bg-transparent text-[9px] font-black text-gray-700 text-center outline-none border-none" placeholder="0">
                                     </div>
@@ -214,7 +219,7 @@
                                 <input type="file" x-ref="dailyEditPhoto" class="hidden" accept="image/*" @change="handleFileUpload($event, 'daily-edit')">
                                 <div x-show="selectedDaily?.image_url" @click="openPhotoViewer(selectedDaily.image_url, 'daily-edit')" class="bg-gray-50 border border-gray-100 rounded-xl overflow-hidden aspect-video relative cursor-pointer">
                                     <img :src="selectedDaily?.image_url" class="w-full h-full object-cover">
-                                    <div x-show="isUploading === true" class="absolute inset-0 bg-white/80 flex items-center justify-center"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>
+                                    <div x-show="isUploading" class="absolute inset-0 bg-white/80 flex items-center justify-center"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>
                                 </div>
                                 <div x-show="!selectedDaily?.image_url" @click="$refs.dailyEditPhoto.click()" class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl h-14 flex items-center justify-center space-x-2 cursor-pointer hover:border-blue-500 hover:bg-blue-50/20 transition-all">
                                     <i data-lucide="camera" class="w-4 h-4 text-gray-300"></i>
@@ -520,10 +525,18 @@
                         </div>
                         <div>
                             <label class="text-[9px] font-black text-gray-800 uppercase tracking-widest mb-1 block">Site Photo</label>
-                            <div @click="$refs.dailyPhoto.click()" class="w-full bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl h-16 flex items-center justify-center space-x-3 cursor-pointer hover:border-blue-500 hover:bg-blue-50/20 transition-all group relative overflow-hidden">
-                                <template x-if="newDaily.image_url"><img :src="newDaily.image_url" class="absolute inset-0 w-full h-full object-cover opacity-20"></template>
-                                <div class="bg-white p-2 rounded-xl shadow-sm text-gray-400 group-hover:text-blue-500 transition-colors"><i data-lucide="camera" class="w-4 h-4"></i></div>
-                                <span class="text-[11px] font-bold text-gray-600" x-text="newDaily.image_url ? 'Photo Selected ✓' : 'Tap to upload photo'"></span>
+                            <div @click="$refs.dailyPhoto.click()" class="w-full bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl h-24 flex items-center justify-center space-x-3 cursor-pointer hover:border-blue-500 hover:bg-blue-50/20 transition-all group relative overflow-hidden">
+                                <template x-if="newDaily.image_url">
+                                    <img :src="newDaily.image_url" class="absolute inset-0 w-full h-full object-cover">
+                                </template>
+                                <div x-show="!newDaily.image_url" class="flex items-center space-x-3">
+                                    <div class="bg-white p-2 rounded-xl shadow-sm text-gray-400 group-hover:text-blue-500 transition-colors"><i data-lucide="camera" class="w-4 h-4"></i></div>
+                                    <span class="text-[11px] font-bold text-gray-600">Tap to upload photo</span>
+                                </div>
+                                <div x-show="newDaily.image_url" class="absolute bottom-2 right-2 bg-black/50 backdrop-blur-md text-white text-[8px] px-2 py-1 rounded-lg font-bold uppercase tracking-widest">Change Photo</div>
+                                <div x-show="isUploading" class="absolute inset-0 bg-white/80 flex items-center justify-center">
+                                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                                </div>
                                 <input type="file" x-ref="dailyPhoto" class="hidden" accept="image/*" @change="handleFileUpload($event, 'daily')">
                             </div>
                         </div>
@@ -574,11 +587,19 @@
                         <div>
                             <label class="text-[9px] font-black text-gray-800 uppercase tracking-widest mb-1 block">Site Photo</label>
                             <input type="file" x-ref="ip1" class="hidden" accept="image/*" @change="handleFileUpload($event, 'issue', 1)">
-                            <div @click="$refs.ip1.click()" class="w-full bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl h-16 flex items-center justify-center space-x-3 cursor-pointer hover:border-orange-500 hover:bg-orange-50/20 transition-all group relative overflow-hidden">
-                                <template x-if="newIssue.image_url_1"><img :src="newIssue.image_url_1" class="absolute inset-0 w-full h-full object-cover opacity-20"></template>
-                                <div class="bg-white p-2 rounded-xl shadow-sm text-gray-400 group-hover:text-orange-500 transition-colors"><i data-lucide="camera" class="w-4 h-4"></i></div>
-                                <span class="text-[11px] font-bold text-gray-600" x-text="newIssue.image_url_1 ? 'Photo Selected ✓' : 'Tap to upload photo'"></span>
-                                <div x-show="isUploading === 1" class="absolute inset-0 bg-white/80 flex items-center justify-center"><div class="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div></div>
+                            <div @click="$refs.ip1.click()" class="w-full bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl h-24 flex items-center justify-center space-x-3 cursor-pointer hover:border-orange-500 hover:bg-orange-50/20 transition-all group relative overflow-hidden">
+                                <template x-if="newIssue.image_url_1">
+                                    <img :src="newIssue.image_url_1" class="absolute inset-0 w-full h-full object-cover">
+                                </template>
+                                <div x-show="!newIssue.image_url_1" class="flex items-center space-x-3">
+                                    <div class="bg-white p-2 rounded-xl shadow-sm text-gray-400 group-hover:text-orange-500 transition-colors"><i data-lucide="camera" class="w-4 h-4"></i></div>
+                                    <span class="text-[11px] font-bold text-gray-600">Tap to upload photo</span>
+                                </div>
+                                <div x-show="newIssue.image_url_1" class="absolute bottom-2 right-2 bg-black/50 backdrop-blur-md text-white text-[8px] px-2 py-1 rounded-lg font-bold uppercase tracking-widest">Change Photo</div>
+                                <div x-show="isUploading === 1" class="absolute inset-0 bg-white/80 flex items-center justify-center">
+                                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
+                                </div>
+                                <input type="file" x-ref="ip1" class="hidden" accept="image/*" @change="handleFileUpload($event, 'issue', 1)">
                             </div>
                         </div>
                         <button @click="submitReport('issue')" :disabled="isSaving" class="w-full bg-orange-500 text-white font-black h-10 rounded-2xl shadow-xl shadow-orange-500/30 flex items-center justify-center space-x-2 uppercase tracking-widest text-xs active:scale-[0.98] transition-all"><template x-if="isSaving"><i data-lucide="loader-2" class="w-4 h-4 animate-spin mr-2"></i></template><span x-text="isSaving ? 'Submitting...' : 'Submit Issue Report'"></span></button>
@@ -853,7 +874,7 @@
                     }
                 },
                 saveIssueAll() {
-                    if (!this.selectedIssue?.id) return;
+                    if (!this.selectedIssue?.id || this.isSaving || this.isUploading) return;
                     const payload = {
                         status: this.selectedIssue.status,
                         action_plan: this.selectedIssue.action_plan,
@@ -865,18 +886,23 @@
                         manager_comment_2: this.selectedIssue.manager_comment_2,
                         manager_name_2: this.selectedIssue.manager_name_2,
                         engineer_action_2: this.selectedIssue.engineer_action_2,
-                        engineer_name_2: this.selectedIssue.engineer_name_2
+                        engineer_name_2: this.selectedIssue.engineer_name_2,
+                        image_url_1: this.selectedIssue.image_url_1 || this.selectedIssue.image_url || '',
+                        image_url_2: this.selectedIssue.image_url_2 || '',
+                        image_url_3: this.selectedIssue.image_url_3 || ''
                     };
                     this.saveEntry('Issue Report saved.', '/api/issues/' + this.selectedIssue.id, payload);
                 },
                 saveDailyAll() {
-                    if (!this.selectedDaily?.id) return;
+                    if (!this.selectedDaily?.id || this.isSaving || this.isUploading) return;
                     const payload = {
                         manpower: parseInt(this.selectedDaily.manpower) || 0,
+                        activity_id: this.selectedDaily.activity_id,
                         manager_comment: this.selectedDaily.manager_comment,
                         manager_name: this.selectedDaily.manager_name,
                         engineer_action: this.selectedDaily.engineer_action,
-                        engineer_name: this.selectedDaily.engineer_name
+                        engineer_name: this.selectedDaily.engineer_name,
+                        image_url: this.selectedDaily.image_url || ''
                     };
                     this.saveEntry('Daily Report saved.', '/api/daily/' + this.selectedDaily.id, payload);
                 },
@@ -915,7 +941,7 @@
                     setTimeout(() => this.showNotification = false, 3000);
                 },
                 async submitReport(type) {
-                    if (this.isSaving) return;
+                    if (this.isSaving || this.isUploading) return;
                     const url = type === 'daily' ? '/api/daily' : '/api/issues';
                     const payload = type === 'daily' ? this.newDaily : this.newIssue;
                     if (!payload.title || !payload.area) { alert('Please fill in required fields.'); return; }
