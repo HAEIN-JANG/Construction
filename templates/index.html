@@ -673,8 +673,19 @@
                     <div class="space-y-4">
                         <div><label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Full Name</label><input type="text" x-model="editingMember.name" class="w-full bg-gray-50 border border-gray-100 rounded-xl p-3.5 text-sm outline-none"></div>
                         <div class="grid grid-cols-2 gap-4">
-                            <div><label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Role</label><input type="text" x-model="editingMember.role" class="w-full bg-gray-50 border border-gray-100 rounded-xl p-3.5 text-sm outline-none"></div>
-                            <div><label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Department</label><input type="text" x-model="editingMember.dept" class="w-full bg-gray-50 border border-gray-100 rounded-xl p-3.5 text-sm outline-none"></div>
+                            <div class="col-span-2">
+                                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Role Type</label>
+                                <select x-model="editingMember.role" class="w-full bg-gray-50 border border-gray-100 rounded-xl p-3.5 text-sm outline-none">
+                                    <option value="">— Select Official Role —</option>
+                                    <option value="Department Manager">Department Manager</option>
+                                    <option value="Team Manager">Team Manager</option>
+                                    <option value="Site Engineer">Site Engineer</option>
+                                </select>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Department / Company</label>
+                                <input type="text" x-model="editingMember.dept" placeholder="e.g. Mechanical / Doosan" class="w-full bg-gray-50 border border-gray-100 rounded-xl p-3.5 text-sm outline-none">
+                            </div>
                         </div>
                     </div>
                     <button @click="saveEntry(editingMember.id ? 'Team Member updated.' : 'New Member added.', '/api/members/' + (editingMember.id || ''), editingMember); showMemberModal = false; editingMember = { id: null, name: '', role: '', dept: '' };" class="w-full bg-blue-600 text-white font-black h-12 rounded-2xl shadow-xl shadow-blue-600/30 uppercase tracking-widest text-xs active:scale-95 transition-all">Save Changes</button>
